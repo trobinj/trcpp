@@ -6,6 +6,17 @@
 
 using namespace Rcpp;
 
+// lowertri
+arma::vec lowertri(arma::mat x);
+RcppExport SEXP _trcpp_lowertri(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(lowertri(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpparma_hello_world
 arma::mat rcpparma_hello_world();
 RcppExport SEXP _trcpp_rcpparma_hello_world() {
@@ -51,6 +62,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_trcpp_lowertri", (DL_FUNC) &_trcpp_lowertri, 1},
     {"_trcpp_rcpparma_hello_world", (DL_FUNC) &_trcpp_rcpparma_hello_world, 0},
     {"_trcpp_rcpparma_outerproduct", (DL_FUNC) &_trcpp_rcpparma_outerproduct, 1},
     {"_trcpp_rcpparma_innerproduct", (DL_FUNC) &_trcpp_rcpparma_innerproduct, 1},
