@@ -1,13 +1,12 @@
 Package: trcpp
 Type: Package
-Title: R package of miscellaneous functions written in C++ and interfaced with R using Rcpp. 
+Title: C++ Functions Interfaced With R Using Rcpp
 Version: 0.1.0
+Date: 2017-12-29
 Author: Timothy R. Johnson
 Maintainer: Timothy R. Johnson <trobinj@gmail.com>
-Description: This is bascially a package to hold C++ functions interfaced with R using Rcpp for my own use. 
+Description: Package of miscellaneous functions written in C++ and interfaced with R using Rcpp. 
 License: What license is it under?
-Encoding: UTF-8
-LazyData: true
-LinkingTo: Rcpp
-Imports: Rcpp
-RoxygenNote: 6.0.1
+Imports: Rcpp (>= 0.12.14)
+LinkingTo: Rcpp, RcppArmadillo
+License: GPL-3
