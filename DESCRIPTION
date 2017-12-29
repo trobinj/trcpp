@@ -1,11 +1,13 @@
 Package: trcpp
 Type: Package
-Title: What the Package Does (Title Case)
+Title: R package of miscellaneous functions written in C++ and interfaced with R using Rcpp. 
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Timothy R. Johnson
+Maintainer: Timothy R. Johnson <trobinj@gmail.com>
+Description: This is bascially a package to hold C++ functions interfaced with R using Rcpp for my own use. 
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+LinkingTo: Rcpp
+Imports: Rcpp
+RoxygenNote: 6.0.1
