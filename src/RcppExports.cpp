@@ -17,6 +17,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// meanpost
+arma::vec meanpost(arma::mat y, arma::mat sigma, arma::vec mu0, arma::mat sigma0);
+RcppExport SEXP _trcpp_meanpost(SEXP ySEXP, SEXP sigmaSEXP, SEXP mu0SEXP, SEXP sigma0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type mu0(mu0SEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type sigma0(sigma0SEXP);
+    rcpp_result_gen = Rcpp::wrap(meanpost(y, sigma, mu0, sigma0));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpparma_hello_world
 arma::mat rcpparma_hello_world();
 RcppExport SEXP _trcpp_rcpparma_hello_world() {
@@ -63,6 +77,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_lowertri", (DL_FUNC) &_trcpp_lowertri, 1},
+    {"_trcpp_meanpost", (DL_FUNC) &_trcpp_meanpost, 4},
     {"_trcpp_rcpparma_hello_world", (DL_FUNC) &_trcpp_rcpparma_hello_world, 0},
     {"_trcpp_rcpparma_outerproduct", (DL_FUNC) &_trcpp_rcpparma_outerproduct, 1},
     {"_trcpp_rcpparma_innerproduct", (DL_FUNC) &_trcpp_rcpparma_innerproduct, 1},

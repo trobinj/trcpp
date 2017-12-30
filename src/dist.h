@@ -1,5 +1,5 @@
-#ifndef DIST_H
-#define DIST_H
+#ifndef _DIST_H_
+#define _DIST_H_
 
 #include <RcppArmadillo.h>
 

@@ -6,6 +6,11 @@ lowertri <- function(x) {
     .Call('_trcpp_lowertri', PACKAGE = 'trcpp', x)
 }
 
+#' @export
+meanpost <- function(y, sigma, mu0, sigma0) {
+    .Call('_trcpp_meanpost', PACKAGE = 'trcpp', y, sigma, mu0, sigma0)
+}
+
 rcpparma_hello_world <- function() {
     .Call('_trcpp_rcpparma_hello_world', PACKAGE = 'trcpp')
 }
