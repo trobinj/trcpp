@@ -1,7 +1,7 @@
-#include "RcppArmadillo.h"
+// Miscellaneous utility functions.
 
-//' @export
-// [[Rcpp::export]]
+#include <RcppArmadillo.h>
+
 arma::vec lowertri(arma::mat x) {
   int n = x.n_rows;
   int m = x.n_cols;
@@ -18,4 +18,13 @@ arma::vec lowertri(arma::mat x) {
     }
   }
   return y;
+}
+
+arma::vec invlogit(arma::vec x) {
+  int n = x.n_elem;
+  arma::vec p(n);
+  for (int i = 0; i < n; i++) {
+    p(i) = R::plogis(x(i), 0.0, 1.0, true, false);
+  }
+  return p;
 }
