@@ -17,6 +17,13 @@ arma::vec meanpost(arma::mat y, arma::mat sigma, arma::vec mu0, arma::mat sigma0
   return mvrnorm(B * b, B);
 }
 
+double sigmpost(arma::vec y, arma::vec mu, double alph, double beta) {
+  int n = y.n_elem;
+  double a = alph + n / 2.0;
+  double b = beta + accu(square(y - mu)) / 2.0;
+  return 1 / R::rgamma(a, 1/b);
+}
+
 arma::mat covmpost(arma::mat y, arma::vec mu, int df, arma::mat scale) {
   int n = y.n_rows;
   int m = y.n_cols;

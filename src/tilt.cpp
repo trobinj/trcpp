@@ -34,7 +34,6 @@ arma::vec bernrjct(arma::vec prb, int s) {
   for (int i = 0; i < n; i++) {
     p(i) = prb(i) * exp(t) / (prb(i) * exp(t) + 1 - prb(i));
   }
-  
   do {
     for (int i = 0; i < n; i++) {
       y(i) = R::rbinom(1, p(i));
