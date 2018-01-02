@@ -7,8 +7,7 @@ using namespace Rcpp;
 
 //' @export
 // [[Rcpp::export]]
-List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, 
-  arma::vec clust, arma::vec block,
+List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block,
   arma::vec samples, arma::vec phivprior, arma::vec psivprior) {
   
   int p = x.n_cols;
@@ -39,8 +38,7 @@ List nlmmsamp(arma::mat x, arma::mat z, arma::vec y,
     
     for (int j = 0; j < n; j++) {
       indx = find(clust == j);
-      zeta.row(j) = betapost(z.rows(indx), y(indx) - x.rows(indx) * beta, 
-               psiv, arma::zeros(q), inv(phiv)).t();
+      zeta.row(j) = betapost(z.rows(indx), y(indx) - x.rows(indx) * beta, psiv, arma::zeros(q), inv(phiv)).t();
       zvec(indx) = z.rows(indx) * zeta.row(j).t();
     }
     

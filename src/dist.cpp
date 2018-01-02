@@ -4,13 +4,13 @@
 
 const double log2pi = log(2.0 * M_PI);
 
-double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logdensity) {
+double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd) {
   double logl;
   int d = y.n_elem;
   arma::vec zvec(d);
   zvec = arma::chol(arma::inv(sigma)) * (y - mu);
   logl = as_scalar(-(log(arma::det(sigma)) + zvec.t() * zvec + d * log2pi) / 2);
-  if (logdensity == false) {
+  if (logd == false) {
     return exp(logl);
   }
   return logl;
