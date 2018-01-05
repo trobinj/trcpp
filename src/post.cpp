@@ -17,8 +17,9 @@ arma::vec meanpost(arma::mat y, arma::mat sigma, arma::vec mu0, arma::mat sigma0
   return mvrnorm(B * b, B);
 }
 
-// Note: Here alph and beta are the shape and scale parameters for the
-// parameterization of the gamma distribution (i.e., 1/beta = rate). 
+// Note: Here alph and beta are the shape and rate parameters for the
+// parameterization of the gamma distribution (i.e., 1/beta = scale). 
+// Also note that the second argument of R::rgamma is scale, not rate.
 double sigmpost(arma::vec y, arma::vec mu, double alph, double beta) {
   int n = y.n_elem;
   double a = alph + n / 2.0;
