@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // nlmmsamp
-List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block, arma::vec samples, arma::vec phivprior, arma::vec psivprior);
-RcppExport SEXP _trcpp_nlmmsamp(SEXP xSEXP, SEXP zSEXP, SEXP ySEXP, SEXP clustSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP phivpriorSEXP, SEXP psivpriorSEXP) {
+List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block, arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior);
+RcppExport SEXP _trcpp_nlmmsamp(SEXP xSEXP, SEXP zSEXP, SEXP ySEXP, SEXP clustSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP betapriorSEXP, SEXP phivpriorSEXP, SEXP psivpriorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -18,15 +18,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type clust(clustSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type block(blockSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type betaprior(betapriorSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type phivprior(phivpriorSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type psivprior(psivpriorSEXP);
-    rcpp_result_gen = Rcpp::wrap(nlmmsamp(x, z, y, clust, block, samples, phivprior, psivprior));
+    rcpp_result_gen = Rcpp::wrap(nlmmsamp(x, z, y, clust, block, samples, betaprior, phivprior, psivprior));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_trcpp_nlmmsamp", (DL_FUNC) &_trcpp_nlmmsamp, 8},
+    {"_trcpp_nlmmsamp", (DL_FUNC) &_trcpp_nlmmsamp, 9},
     {NULL, NULL, 0}
 };
 

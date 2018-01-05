@@ -8,7 +8,7 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block,
-  arma::vec samples, arma::vec phivprior, arma::vec psivprior) {
+  arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior) {
   
   int p = x.n_cols;
   int q = z.n_cols;
@@ -34,6 +34,8 @@ List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
   phiv.eye(q, q);
   psiv = 1.0;
   
+  arma::mat Rb = inv(betaprior);
+  
   for (int i = 0; i < samples(0); i++) {
     
     for (int j = 0; j < n; j++) {
@@ -42,19 +44,19 @@ List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
       zvec(indx) = z.rows(indx) * zeta.row(j).t();
     }
     
-    beta = betablockpost(x, z, y, arma::eye(m,m) * psiv, inv(phiv), arma::zeros(p), arma::eye(p,p));
+    beta = betablockpost(x, z, y, arma::eye(m,m) * psiv, inv(phiv), arma::zeros(p), Rb);
     betasave.row(i) = beta.t();
     
-    psiv = sigmpost(y, x * beta + zvec, psivprior(0)/2, psivprior(1) * psivprior(0)/2);
+    psiv = sigmpost(y, x * beta + zvec, psivprior(0), psivprior(1));
     psivsave(i) = psiv;
     
     if (q == 1) {
-      phiv(0,0) = sigmpost(arma::vectorise(zeta), arma::zeros(n), phivprior(0)/2, phivprior(1) * phivprior(0)/2); 
+      phiv(0,0) = sigmpost(arma::vectorise(zeta), arma::zeros(n), phivprior(0), phivprior(1)); 
     }
     else {
-      phiv = covmpost(zeta, arma::zeros(q), q, arma::eye(q,q) * q);
+      phiv = covmpost(zeta, arma::zeros(q), phivprior(0), arma::eye(q,q) * phivprior(1));
     }
-    phivsave.row(i) = lowertri(phiv);
+    phivsave.row(i) = lowertri(phiv).t(); // is this correct?
     
     for (int k = 1; k < (b + 1); k++) {
       indx = find(block == k);
