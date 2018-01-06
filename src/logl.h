@@ -1,7 +1,7 @@
 // Function declarations for logl.cpp. 
 
-#ifndef _LOGL_H_
-#define _LOGL_H_
+#ifndef LOGL_H
+#define LOGL_H
 
 #include <RcppArmadillo.h>
 

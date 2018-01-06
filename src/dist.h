@@ -1,7 +1,7 @@
 // Function declarations for dist.cpp. 
 
-#ifndef _DIST_H_
-#define _DIST_H_
+#ifndef DIST_H
+#define DIST_H
 
 #include <RcppArmadillo.h>
 

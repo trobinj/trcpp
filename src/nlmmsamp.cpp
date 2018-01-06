@@ -14,7 +14,6 @@ List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
   int q = z.n_cols;
   int n = max(clust);    
   int b = max(block);
-  int m = x.n_rows/n;    
   
   arma::uvec indx;
   
@@ -27,7 +26,7 @@ List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
   arma::mat phiv(q, q);
   double psiv;
   
-  arma::vec zvec(n*m, arma::fill::zeros);
+  arma::vec zvec(size(y), arma::fill::zeros);
   
   beta.fill(0.0);
   zeta.fill(0.0);
@@ -44,7 +43,7 @@ List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
       zvec(indx) = z.rows(indx) * zeta.row(j).t();
     }
     
-    beta = betablockpost(x, z, y, arma::eye(m,m) * psiv, inv(phiv), arma::zeros(p), Rb);
+    beta = betablockpost(x, z, y, clust, psiv, inv(phiv), arma::zeros(p), Rb);
     betasave.row(i) = beta.t();
     
     psiv = sigmpost(y, x * beta + zvec, psivprior(0), psivprior(1));

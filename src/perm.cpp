@@ -3,6 +3,7 @@
 #include <RcppArmadillo.h>
 #include "dist.h" // for randint
 
+// Sampler for bernoulli-distributed variables.
 arma::vec bernperm(int samples, arma::vec y, arma::vec p) {
   int n = y.n_elem;
   double lr, tmp;
@@ -22,6 +23,7 @@ arma::vec bernperm(int samples, arma::vec y, arma::vec p) {
   return y;
 }
 
+// Sampler for poisson-distributed variables.
 arma::vec poisperm(int samples, arma::vec y, arma::vec lambda) {
   int n = y.n_elem;
   double lr, tmp;
@@ -41,6 +43,7 @@ arma::vec poisperm(int samples, arma::vec y, arma::vec lambda) {
   return y;
 }
 
+// Sampler for normally-distributed variables (with equal variance).
 arma::vec normperm(int samples, arma::vec y, arma::vec mu, double sigm) {
   int n = y.n_elem;
   double lr, tmp;

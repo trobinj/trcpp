@@ -1,7 +1,7 @@
 // Function declarations for tilt.cpp. 
 
-#ifndef _TILT_H_
-#define _TILT_H_
+#ifndef TILT_H
+#define TILT_H
 
 #include <RcppArmadillo.h>
 

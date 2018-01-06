@@ -1,7 +1,7 @@
 // Function declarations for perm.cpp. 
 
-#ifndef _PERM_H_
-#define _PERM_H_
+#ifndef PERM_H
+#define PERM_H
 
 #include <RcppArmadillo.h>
 

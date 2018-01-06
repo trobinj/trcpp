@@ -48,30 +48,37 @@ arma::vec betapost(arma::mat x, arma::vec y, double phiv, arma::vec mb, arma::ma
   return mvrnorm(B * b, B);
 }
 
-arma::vec betablockpost(arma::mat x, arma::mat z, arma::vec y, 
-  arma::mat psiv, arma::mat Rz, arma::vec mb, arma::mat Rb) {
+arma::vec betablockpost(arma::mat x, arma::mat z, arma::vec y, arma::vec clust,
+  double psiv, arma::mat Rz, arma::vec mb, arma::mat Rb) {
   
-  int m = psiv.n_rows;
-  int n = x.n_rows / m;
+  int n = max(clust);
   int p = x.n_cols;
   int q = z.n_cols;
   
   arma::mat xwx(p, p, arma::fill::zeros);
   arma::vec xwy(p, arma::fill::zeros);
-  arma::mat xi(m, p);
-  arma::mat zi(m, q);
-  arma::vec yi(m);
-  arma::mat xw(p, m);
+  
   arma::mat B(p, p);
   arma::vec b(p);
   
+  arma::uvec indx;
+  
   for (int i = 0; i < n; i++) {
+
+    indx = find(clust == i + 1);
+        
+    int m = indx.n_elem;
     
-    xi = x.rows(i * m, i * m + m - 1);
-    zi = z.rows(i * m, i * m + m - 1);
-    yi = y.subvec(i * m, i * m + m - 1);
+    arma::mat xi(m, p);
+    arma::mat zi(m, q);
+    arma::vec yi(m);
+    arma::mat xw(p, m);
+        
+    xi = x.rows(indx);
+    zi = z.rows(indx);
+    yi = y(indx);
     
-    xw = xi.t() * inv(zi * Rz * zi.t() + psiv);
+    xw = xi.t() * inv(zi * Rz * zi.t() + arma::eye(m,m) * psiv);
     xwx = xwx + xw * xi;
     xwy = xwy + xw * yi;
   }

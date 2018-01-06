@@ -1,7 +1,7 @@
 // Function declarations for misc.cpp. 
 
-#ifndef _MISC_H_
-#define _MISC_H_
+#ifndef MISC_H
+#define MISC_H
 
 #include <RcppArmadillo.h>
 
