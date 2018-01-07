@@ -6,6 +6,17 @@
 
 using namespace Rcpp;
 
+// indexmat
+arma::umat indexmat(arma::vec x);
+RcppExport SEXP _trcpp_indexmat(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(indexmat(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // nlmmsamp
 List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block, arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior);
 RcppExport SEXP _trcpp_nlmmsamp(SEXP xSEXP, SEXP zSEXP, SEXP ySEXP, SEXP clustSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP betapriorSEXP, SEXP phivpriorSEXP, SEXP psivpriorSEXP) {
@@ -27,6 +38,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_trcpp_indexmat", (DL_FUNC) &_trcpp_indexmat, 1},
     {"_trcpp_nlmmsamp", (DL_FUNC) &_trcpp_nlmmsamp, 9},
     {NULL, NULL, 0}
 };

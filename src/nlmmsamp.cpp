@@ -5,9 +5,6 @@
 
 using namespace Rcpp;
 
-// Note: Eventually create more efficient version that sorts the data and then does not
-// require repeated use of the find function. 
-
 //' @export
 // [[Rcpp::export]]
 List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block,
@@ -18,14 +15,12 @@ List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
   int n = max(clust);    
   int b = max(block);
   
-  arma::uvec indx;
-  
   arma::mat betasave(samples(0), p, arma::fill::zeros);
   arma::vec psivsave(samples(0), arma::fill::zeros);
   arma::mat phivsave(samples(0), q * (q + 1) / 2, arma::fill::zeros);
   
-  arma::mat zeta(n, q);
   arma::vec beta(p); 
+  arma::mat zeta(n, q);
   arma::mat phiv(q, q);
   double psiv;
   
@@ -37,13 +32,18 @@ List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
   psiv = 1.0;
   
   arma::mat Rb = inv(betaprior);
-  
+
+  arma::umat indx = indexmat(clust);
+  unsigned int low, upp;
+  arma::umat bndx;
+    
   for (int i = 0; i < samples(0); i++) {
     
     for (int j = 0; j < n; j++) {
-      indx = find(clust == j);
-      zeta.row(j) = betapost(z.rows(indx), y(indx) - x.rows(indx) * beta, psiv, arma::zeros(q), inv(phiv)).t();
-      zvec(indx) = z.rows(indx) * zeta.row(j).t();
+      low = indx(j, 0);
+      upp = indx(j, 1);
+      zeta.row(j) = betapost(z.rows(low, upp), y(arma::span(low, upp)) - x.rows(low, upp) * beta, psiv, arma::zeros(q), inv(phiv)).t();
+      zvec(arma::span(low, upp)) = z.rows(low, upp) * zeta.row(j).t();
     }
     
     beta = betablockpost(x, z, y, clust, psiv, inv(phiv), arma::zeros(p), Rb);
@@ -61,8 +61,8 @@ List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
     phivsave.row(i) = lowertri(phiv).t(); // is this correct?
     
     for (int k = 1; k < (b + 1); k++) {
-      indx = find(block == k);
-      y(indx) = normperm(samples(1), y(indx), x.rows(indx) * beta + zvec(indx), sqrt(psiv));
+      bndx = find(block == k);
+      y(bndx) = normperm(samples(1), y(bndx), x.rows(bndx) * beta + zvec(bndx), sqrt(psiv));
     }
   }
   
@@ -72,3 +72,4 @@ List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
     Named("phiv") = wrap(phivsave)
   );
 }
+

@@ -2,6 +2,7 @@
 
 #include <RcppArmadillo.h>
 #include "dist.h"
+#include "misc.h"
 
 arma::vec meanpost(arma::mat y, arma::mat sigma, arma::vec mu0, arma::mat sigma0) {
   int n = y.n_rows;
@@ -61,22 +62,24 @@ arma::vec betablockpost(arma::mat x, arma::mat z, arma::vec y, arma::vec clust,
   arma::mat B(p, p);
   arma::vec b(p);
   
-  arma::uvec indx;
+  arma::umat indx = indexmat(clust);
+  unsigned int low, upp;
+  int m;
   
   for (int i = 0; i < n; i++) {
-
-    indx = find(clust == i + 1);
-        
-    int m = indx.n_elem;
+    
+    low = indx(i, 0);
+    upp = indx(i, 1);
+    m = upp - low + 1;
     
     arma::mat xi(m, p);
     arma::mat zi(m, q);
     arma::vec yi(m);
     arma::mat xw(p, m);
-        
-    xi = x.rows(indx);
-    zi = z.rows(indx);
-    yi = y(indx);
+    
+    xi = x.rows(low, upp);
+    zi = z.rows(low, upp);
+    yi = y(arma::span(low, upp));
     
     xw = xi.t() * inv(zi * Rz * zi.t() + arma::eye(m, m) * psiv);
     xwx = xwx + xw * xi;
