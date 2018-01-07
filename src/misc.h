@@ -7,5 +7,6 @@
 
 arma::vec lowertri(arma::mat x);
 arma::vec invlogit(arma::vec x);
+arma::umat indexmat(arma::vec x);
 
 #endif
