@@ -78,7 +78,7 @@ arma::vec betablockpost(arma::mat x, arma::mat z, arma::vec y, arma::vec clust,
     zi = z.rows(indx);
     yi = y(indx);
     
-    xw = xi.t() * inv(zi * Rz * zi.t() + arma::eye(m,m) * psiv);
+    xw = xi.t() * inv(zi * Rz * zi.t() + arma::eye(m, m) * psiv);
     xwx = xwx + xw * xi;
     xwy = xwy + xw * yi;
   }

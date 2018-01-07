@@ -28,3 +28,21 @@ arma::vec invlogit(arma::vec x) {
   }
   return p;
 }
+
+arma::umat indexmat(arma::vec x) {
+  if (!x.is_sorted()) Rcpp::Rcout << "warning: unsorted vector in indexmat";
+  arma::vec u = unique(x);
+  arma::umat y(u.n_elem, 2);
+  int n = x.n_elem;
+  int i = 0;
+  y(i, 0) = 0;
+  for (int t = 1; t < n; t++) {
+    if (x(t) != x(t - 1)) {
+      y(i, 1) = t - 1;
+      y(i + 1, 0) = t;
+      y(i + 1, 1) = t;
+      i = i + 1;
+    }
+  }
+  return y;
+}

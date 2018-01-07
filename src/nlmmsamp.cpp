@@ -5,6 +5,9 @@
 
 using namespace Rcpp;
 
+// Note: Eventually create more efficient version that sorts the data and then does not
+// require repeated use of the find function. 
+
 //' @export
 // [[Rcpp::export]]
 List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block,
