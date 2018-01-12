@@ -2,12 +2,12 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @export
-indexmat <- function(x) {
-    .Call('_trcpp_indexmat', PACKAGE = 'trcpp', x)
+nlmmsamp <- function(x, z, y, clust, block, samples, betaprior, phivprior, psivprior) {
+    .Call('_trcpp_nlmmsamp', PACKAGE = 'trcpp', x, z, y, clust, block, samples, betaprior, phivprior, psivprior)
 }
 
 #' @export
-nlmmsamp <- function(x, z, y, clust, block, samples, betaprior, phivprior, psivprior) {
-    .Call('_trcpp_nlmmsamp', PACKAGE = 'trcpp', x, z, y, clust, block, samples, betaprior, phivprior, psivprior)
+nlmmsamp2 <- function(x, z, u, y, clust, block, samples, betaprior, phivprior, psivprior) {
+    .Call('_trcpp_nlmmsamp2', PACKAGE = 'trcpp', x, z, u, y, clust, block, samples, betaprior, phivprior, psivprior)
 }
 

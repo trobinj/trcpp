@@ -40,15 +40,33 @@ arma::mat covmpost(arma::mat y, arma::vec mu, int df, arma::mat scale) {
   return inv(rwishart(n + df, inv(inv(scale) + v)));
 }
 
-arma::vec betapost(arma::mat x, arma::vec y, double phiv, arma::vec mb, arma::mat Rb) {
+arma::vec betapost(arma::mat x, arma::vec y, double psiv, arma::vec mb, arma::mat Rb) {
   int p = x.n_cols;
   arma::mat B(p, p);
   arma::vec b(p);
-  B = inv(x.t() * x / phiv + Rb);
-  b = x.t() * y / phiv + Rb * mb; 
+  B = inv(x.t() * x / psiv + Rb);
+  b = x.t() * y / psiv + Rb * mb; 
   return mvrnorm(B * b, B);
 }
 
+arma::vec betapost2(arma::mat x, arma::vec y, arma::vec psiv, arma::vec mb, arma::mat Rb) {
+  int p = x.n_cols;
+  int n = x.n_rows;
+  double w;
+  arma::mat xw(size(x));
+  arma::vec yw(size(y));
+  arma::mat B(p, p);
+  arma::vec b(p);
+  for (int i = 0; i < n; i++) {
+    w = 1 / sqrt(psiv(i));
+    xw.row(i) = x.row(i) * w;
+    yw(i) = y(i) * w;
+  }
+  B = inv(xw.t() * xw + Rb);
+  b = xw.t() * yw + Rb * mb; 
+  return mvrnorm(B * b, B);
+}
+ 
 arma::vec betablockpost(arma::mat x, arma::mat z, arma::vec y, arma::vec clust,
   double psiv, arma::mat Rz, arma::vec mb, arma::mat Rb) {
   
@@ -82,6 +100,49 @@ arma::vec betablockpost(arma::mat x, arma::mat z, arma::vec y, arma::vec clust,
     yi = y(arma::span(low, upp));
     
     xw = xi.t() * inv(zi * Rz * zi.t() + arma::eye(m, m) * psiv);
+    xwx = xwx + xw * xi;
+    xwy = xwy + xw * yi;
+  }
+  
+  B = inv(xwx + Rb);
+  b = xwy + Rb * mb;
+  
+  return mvrnorm(B * b, B);
+}
+
+arma::vec betablockpost2(arma::mat x, arma::mat z, arma::vec y, arma::vec clust,
+  arma::vec psiv, arma::mat Rz, arma::vec mb, arma::mat Rb) {
+  
+  int n = max(clust);
+  int p = x.n_cols;
+  int q = z.n_cols;
+  
+  arma::mat xwx(p, p, arma::fill::zeros);
+  arma::vec xwy(p, arma::fill::zeros);
+  
+  arma::mat B(p, p);
+  arma::vec b(p);
+  
+  arma::umat indx = indexmat(clust);
+  unsigned int low, upp;
+  int m;
+  
+  for (int i = 0; i < n; i++) {
+    
+    low = indx(i, 0);
+    upp = indx(i, 1);
+    m = upp - low + 1;
+    
+    arma::mat xi(m, p);
+    arma::mat zi(m, q);
+    arma::vec yi(m);
+    arma::mat xw(p, m);
+    
+    xi = x.rows(low, upp);
+    zi = z.rows(low, upp);
+    yi = y(arma::span(low, upp));
+    
+    xw = xi.t() * arma::inv(zi * Rz * zi.t() + arma::diagmat(psiv(arma::span(low, upp))));
     xwx = xwx + xw * xi;
     xwy = xwy + xw * yi;
   }

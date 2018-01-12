@@ -6,17 +6,6 @@
 
 using namespace Rcpp;
 
-// indexmat
-arma::umat indexmat(arma::vec x);
-RcppExport SEXP _trcpp_indexmat(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(indexmat(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 // nlmmsamp
 List nlmmsamp(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block, arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior);
 RcppExport SEXP _trcpp_nlmmsamp(SEXP xSEXP, SEXP zSEXP, SEXP ySEXP, SEXP clustSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP betapriorSEXP, SEXP phivpriorSEXP, SEXP psivpriorSEXP) {
@@ -36,10 +25,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// nlmmsamp2
+List nlmmsamp2(arma::mat x, arma::mat z, arma::vec u, arma::vec y, arma::vec clust, arma::vec block, arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior);
+RcppExport SEXP _trcpp_nlmmsamp2(SEXP xSEXP, SEXP zSEXP, SEXP uSEXP, SEXP ySEXP, SEXP clustSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP betapriorSEXP, SEXP phivpriorSEXP, SEXP psivpriorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type u(uSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type clust(clustSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type block(blockSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type betaprior(betapriorSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type phivprior(phivpriorSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type psivprior(psivpriorSEXP);
+    rcpp_result_gen = Rcpp::wrap(nlmmsamp2(x, z, u, y, clust, block, samples, betaprior, phivprior, psivprior));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_trcpp_indexmat", (DL_FUNC) &_trcpp_indexmat, 1},
     {"_trcpp_nlmmsamp", (DL_FUNC) &_trcpp_nlmmsamp, 9},
+    {"_trcpp_nlmmsamp2", (DL_FUNC) &_trcpp_nlmmsamp2, 10},
     {NULL, NULL, 0}
 };
 

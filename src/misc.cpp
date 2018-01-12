@@ -29,8 +29,6 @@ arma::vec invlogit(arma::vec x) {
   return p;
 }
 
-//' @export
-// [[Rcpp::export]]
 arma::umat indexmat(arma::vec x) {
   if (!x.is_sorted()) Rcpp::Rcout << "warning: unsorted vector in indexmat";
   arma::vec u = unique(x);

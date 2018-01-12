@@ -8,5 +8,6 @@
 arma::vec bernperm(int samples, arma::vec y, arma::vec p);
 arma::vec poisperm(int samples, arma::vec y, arma::vec lambda);
 arma::vec normperm(int samples, arma::vec y, arma::vec mu, double sigm);
+arma::vec normperm2(int samples, arma::vec y, arma::vec mu, arma::vec sigm);
 
 #endif
