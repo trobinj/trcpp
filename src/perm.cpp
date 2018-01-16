@@ -63,21 +63,4 @@ arma::vec normperm(int samples, arma::vec y, arma::vec mu, double sigm) {
   return y;
 }
 
-arma::vec normperm2(int samples, arma::vec y, arma::vec mu, arma::vec sigm) {
-  int n = y.n_elem;
-  double lr, tmp;
-  arma::ivec u(2);  
-  for (int i = 0; i < samples; i++) {
-    do {
-      u = randint(2, 0, n - 1);  
-    } while (u(0) == u(1));
-    lr = R::dnorm(y(u(1)), mu(u(0)), sigm(u(0)), true) + R::dnorm(y(u(0)), mu(u(1)), sigm(u(1)), true) - 
-      R::dnorm(y(u(0)), mu(u(0)), sigm(u(0)), true) - R::dnorm(y(u(1)), mu(u(1)), sigm(u(1)), true);
-    if (R::runif(0.0, 1.0) < exp(lr)) {
-      tmp = y(u(0));
-      y(u(0)) = y(u(1));
-      y(u(1)) = tmp;
-    }
-  }
-  return y;
-}
+

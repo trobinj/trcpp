@@ -5,7 +5,7 @@ Version: 0.1.0
 Date: 2017-12-29
 Author: Timothy R. Johnson
 Maintainer: Timothy R. Johnson <trobinj@gmail.com>
-Description: Package of miscellaneous functions written in C++ and interfaced with R using Rcpp. 
+Description: Package of miscellaneous functions written in C++ and interfaced with R using Rcpp.
 License: GPL-3
 Imports: Rcpp (>= 0.12.14)
 LinkingTo: Rcpp, RcppArmadillo
