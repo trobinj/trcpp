@@ -2,12 +2,13 @@
 #include "post.h"
 #include "perm.h"
 #include "misc.h"
+#include "samp.h"
 
 using namespace Rcpp;
 
 //' @export
 // [[Rcpp::export]]
-List nlmmperm(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block,
+List lmerperm(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block,
   arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior) {
   
   int p = x.n_cols;
@@ -40,7 +41,14 @@ List nlmmperm(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
   unsigned int low, upp;
   arma::umat bndx;
     
+  arma::vec temp(2);
+  arma::vec mpri(2);
+  arma::mat spri(2,2);
+    
   for (int i = 0; i < samples(0); i++) {
+    
+    beta = betablockpost(x, z, y, clust, psiv, Rz, mb, Rb);
+    betasave.row(i) = beta.t();
     
     for (int j = 0; j < n; j++) {
       low = indx(j, 0);
@@ -49,12 +57,9 @@ List nlmmperm(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
       zvec(arma::span(low, upp)) = z.rows(low, upp) * zeta.row(j).t();
     }
     
-    beta = betablockpost(x, z, y, clust, psiv, Rz, mb, Rb);
-    betasave.row(i) = beta.t();
-    
     psiv = sigmpost(y, x * beta + zvec, psivprior(0), psivprior(1));
     psivsave(i) = psiv;
-    
+      
     if (q == 1) {
       phiv(0,0) = sigmpost(arma::vectorise(zeta), arma::zeros(n), phivprior(0), phivprior(1)); 
     }
@@ -63,7 +68,7 @@ List nlmmperm(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
     }
     phivsave.row(i) = lowertri(phiv).t(); // is this correct?
     Rz = inv(phiv);
-    
+
     for (int k = 1; k < (b + 1); k++) {
       bndx = find(block == k);
       y(bndx) = normperm(samples(1), y(bndx), x.rows(bndx) * beta + zvec(bndx), sqrt(psiv));
@@ -76,5 +81,4 @@ List nlmmperm(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
     Named("phiv") = wrap(phivsave)
   );
 }
-
 

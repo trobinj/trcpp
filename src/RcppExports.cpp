@@ -6,9 +6,31 @@
 
 using namespace Rcpp;
 
-// nlmmperm
-List nlmmperm(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block, arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior);
-RcppExport SEXP _trcpp_nlmmperm(SEXP xSEXP, SEXP zSEXP, SEXP ySEXP, SEXP clustSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP betapriorSEXP, SEXP phivpriorSEXP, SEXP psivpriorSEXP) {
+// lmerlong
+List lmerlong(arma::mat x, arma::mat z, arma::vec y, double m, arma::vec block, arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior, arma::vec vm, arma::mat vs, double delt);
+RcppExport SEXP _trcpp_lmerlong(SEXP xSEXP, SEXP zSEXP, SEXP ySEXP, SEXP mSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP betapriorSEXP, SEXP phivpriorSEXP, SEXP psivpriorSEXP, SEXP vmSEXP, SEXP vsSEXP, SEXP deltSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type block(blockSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type betaprior(betapriorSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type phivprior(phivpriorSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type psivprior(psivpriorSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type vm(vmSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type vs(vsSEXP);
+    Rcpp::traits::input_parameter< double >::type delt(deltSEXP);
+    rcpp_result_gen = Rcpp::wrap(lmerlong(x, z, y, m, block, samples, betaprior, phivprior, psivprior, vm, vs, delt));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lmerperm
+List lmerperm(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec block, arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior);
+RcppExport SEXP _trcpp_lmerperm(SEXP xSEXP, SEXP zSEXP, SEXP ySEXP, SEXP clustSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP betapriorSEXP, SEXP phivpriorSEXP, SEXP psivpriorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,30 +43,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type betaprior(betapriorSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type phivprior(phivpriorSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type psivprior(psivpriorSEXP);
-    rcpp_result_gen = Rcpp::wrap(nlmmperm(x, z, y, clust, block, samples, betaprior, phivprior, psivprior));
-    return rcpp_result_gen;
-END_RCPP
-}
-// nlmperm
-List nlmperm(arma::mat x, arma::vec y, arma::uvec block, arma::vec samples, arma::mat betaprior, arma::vec psiprior);
-RcppExport SEXP _trcpp_nlmperm(SEXP xSEXP, SEXP ySEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP betapriorSEXP, SEXP psipriorSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type block(blockSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type samples(samplesSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type betaprior(betapriorSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type psiprior(psipriorSEXP);
-    rcpp_result_gen = Rcpp::wrap(nlmperm(x, y, block, samples, betaprior, psiprior));
+    rcpp_result_gen = Rcpp::wrap(lmerperm(x, z, y, clust, block, samples, betaprior, phivprior, psivprior));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_trcpp_nlmmperm", (DL_FUNC) &_trcpp_nlmmperm, 9},
-    {"_trcpp_nlmperm", (DL_FUNC) &_trcpp_nlmperm, 6},
+    {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 12},
+    {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
     {NULL, NULL, 0}
 };
 

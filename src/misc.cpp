@@ -20,6 +20,19 @@ arma::vec lowertri(arma::mat x) {
   return y;
 }
 
+arma::mat vec2symm(arma::vec x) {
+  int n = (sqrt(8 * x.n_elem + 1) - 1)/2;
+  int t = 0;
+  arma::mat y(n, n);
+  for (int j = 0; j < n; j++) {
+    for (int i = j; i < n; i++) {
+      y(i,j) = x(t);
+      t = t + 1;
+    }
+  }
+  return symmatl(y);
+}
+
 arma::vec invlogit(arma::vec x) {
   int n = x.n_elem;
   arma::vec p(n);

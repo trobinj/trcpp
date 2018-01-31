@@ -1,15 +1,17 @@
-// Functions for evaluating or sampling from various probability distributions.
+// Functions for evaluating or sampling various probability distributions.
 
 #include <RcppArmadillo.h>
 
 const double log2pi = log(2.0 * M_PI);
+const double logpi = log(M_PI);
 
 double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd) {
-  double logl;
   int d = y.n_elem;
-  arma::vec zvec(d);
-  zvec = arma::chol(arma::inv(sigma)) * (y - mu);
-  logl = as_scalar(-(log(arma::det(sigma)) + zvec.t() * zvec + d * log2pi) / 2);
+  double logl, lds, sign;
+  log_det(lds, sign, sigma);
+  arma::vec z(d);
+  z = chol(inv(sigma)) * (y - mu);
+  logl = as_scalar(-(lds + z.t() * z + d * log2pi) / 2);
   if (logd == false) {
     return exp(logl);
   }
@@ -19,6 +21,55 @@ double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd) {
 arma::vec mvrnorm(arma::vec mu, arma::mat sigma) {
   int p = sigma.n_cols;
   return mu + arma::chol(sigma, "lower") * arma::randn(p);
+}
+
+arma::vec rmvt(arma::vec m, arma::mat s, double v) {
+  return m + mvrnorm(arma::zeros(size(m)), s) / sqrt(R::rchisq(v) / v);
+}
+
+double dmvt(arma::vec y, arma::vec m, arma::mat s, double v, bool logd) {
+  int p = y.n_elem;
+  double t1, t2, t3, lds, sign;
+  log_det(lds, sign, s);
+  t1 = lgamma((v + p) / 2.0);
+  t2 = lgamma(v / 2.0) + p * log(v) / 2.0 + p * logpi / 2.0 + lds / 2.0;
+  t3 = -(v + p) / 2.0 * log(1.0 + as_scalar((y - m).t() * inv(s) * (y - m)) / v);
+  if (logd) {
+    return t1 - t2 + t3;
+  }
+  else {
+    return exp(t1 - t2 + t3);
+  }
+}
+
+// Multivariate gamma function \Gamma_p(a). 
+double mvgamma(int p, double a, bool logd) {
+  double y = 0.0;
+  for (int j = 0; j < p; j++) {
+    y = y + lgamma(a - j / 2.0);
+  }
+  y = y + logpi * p * (p - 1) / 4.0;
+  if (logd) {
+    return y;
+  }
+  else {
+    return exp(y);
+  }
+}
+
+double dwishart(arma::mat x, double n, arma::mat v, bool logd) {
+  int p = x.n_rows;
+  double y, sign, logdx, logdv;
+  arma::log_det(logdx, sign, x);
+  arma::log_det(logdv, sign, v);
+  y = (n - p - 1) / 2.0 * logdx - trace(inv(v) * x) / 2.0
+    - (n * p / 2.0 * log(2.0) + n / 2.0 * logdv + mvgamma(p, n / 2.0, true)); 
+  if (logd) {
+    return y;
+  }
+  else {
+    return exp(y);
+  }
 }
 
 arma::mat rwishart(int df, arma::mat S) {

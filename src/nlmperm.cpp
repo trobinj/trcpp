@@ -5,8 +5,6 @@
 
 using namespace Rcpp;
 
-//' @export
-// [[Rcpp::export]]
 List nlmperm(arma::mat x, arma::vec y, arma::uvec block, 
   arma::vec samples, arma::mat betaprior, arma::vec psiprior) {
   
