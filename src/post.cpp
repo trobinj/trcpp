@@ -3,6 +3,27 @@
 #include <RcppArmadillo.h>
 #include "dist.h"
 #include "misc.h"
+#include "logl.h"
+
+arma::vec betalogrpost(arma::mat x, arma::vec y, arma::vec z,
+  arma::vec bold, arma::vec bm, arma::mat bs, double delt) {
+  
+  double numlogdens, denlogdens;
+  int p = x.n_cols;
+
+  arma::vec bnew(p);
+  bnew = mvrnorm(bold, arma::eye(p, p) * delt);
+  
+  numlogdens = bernlogl(y, invlogit(x * bnew + z)) + dmvnorm(bnew, bm, bs, true);
+  denlogdens = bernlogl(y, invlogit(x * bold + z)) + dmvnorm(bold, bm, bs, true);
+  
+  if (R::runif(0.0, 1.0) < exp(numlogdens - denlogdens)) {
+    return bnew;
+  }
+  else {
+    return bold;
+  }
+}
 
 arma::vec meanpost(arma::mat y, arma::mat sigma, arma::vec mu0, arma::mat sigma0) {
   int n = y.n_rows;

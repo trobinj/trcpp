@@ -6,7 +6,7 @@
 #include <RcppArmadillo.h>
 
 double bernscor(arma::vec prb, double t, int s);
-double bernroot(arma::vec prb, int s, double a, double b, double n);
+double bernroot(arma::vec prb, int s, double a, double b, int n);
 arma::vec bernrjct(arma::vec prb, int s);
 
 #endif

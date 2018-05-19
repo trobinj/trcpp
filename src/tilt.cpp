@@ -11,7 +11,7 @@ double bernscor(arma::vec prb, double t, int s) {
   return s - y;
 }
 
-double bernroot(arma::vec prb, int s, double a, double b, double n) {
+double bernroot(arma::vec prb, int s, double a, double b, int n) {
   double fa, fb, c = 0.0;
   for (int i = 0; i < n; i++) {
     fb = bernscor(prb, b, s);

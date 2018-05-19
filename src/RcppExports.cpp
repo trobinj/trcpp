@@ -6,8 +6,29 @@
 
 using namespace Rcpp;
 
+// bernlong
+List bernlong(arma::mat x, arma::vec y, arma::vec z, int m, arma::vec block, int samples, arma::vec bm, arma::mat bs, arma::vec phivprior, double betadelt, double zetadelt);
+RcppExport SEXP _trcpp_bernlong(SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP mSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP bmSEXP, SEXP bsSEXP, SEXP phivpriorSEXP, SEXP betadeltSEXP, SEXP zetadeltSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type z(zSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type block(blockSEXP);
+    Rcpp::traits::input_parameter< int >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type bm(bmSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type bs(bsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type phivprior(phivpriorSEXP);
+    Rcpp::traits::input_parameter< double >::type betadelt(betadeltSEXP);
+    Rcpp::traits::input_parameter< double >::type zetadelt(zetadeltSEXP);
+    rcpp_result_gen = Rcpp::wrap(bernlong(x, y, z, m, block, samples, bm, bs, phivprior, betadelt, zetadelt));
+    return rcpp_result_gen;
+END_RCPP
+}
 // lmerlong
-List lmerlong(arma::mat x, arma::mat z, arma::vec y, double m, arma::vec block, arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior, arma::vec vm, arma::mat vs, double delt);
+List lmerlong(arma::mat x, arma::mat z, arma::vec y, int m, arma::vec block, arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior, arma::vec vm, arma::mat vs, double delt);
 RcppExport SEXP _trcpp_lmerlong(SEXP xSEXP, SEXP zSEXP, SEXP ySEXP, SEXP mSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP betapriorSEXP, SEXP phivpriorSEXP, SEXP psivpriorSEXP, SEXP vmSEXP, SEXP vsSEXP, SEXP deltSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -15,7 +36,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type z(zSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type block(blockSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type samples(samplesSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type betaprior(betapriorSEXP);
@@ -49,6 +70,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 11},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 12},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
     {NULL, NULL, 0}

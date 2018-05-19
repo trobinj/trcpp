@@ -5,6 +5,16 @@
 const double log2pi = log(2.0 * M_PI);
 const double logpi = log(M_PI);
 
+// Rejection sampler for truncated normal distribution. 
+double rtnorm(double mu, double sigma, double a, double b) {
+  double y;
+  do {
+    y = R::rnorm(mu, sigma);
+  } while ((a > y) || (y > b));
+  return y;
+}
+
+// Probability density function of a multivariate normal distribution.
 double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd) {
   int d = y.n_elem;
   double logl, lds, sign;
@@ -18,15 +28,18 @@ double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd) {
   return logl;
 }
 
+// Sampler for multivariate normal distribution.
 arma::vec mvrnorm(arma::vec mu, arma::mat sigma) {
   int p = sigma.n_cols;
   return mu + arma::chol(sigma, "lower") * arma::randn(p);
 }
 
+// Sampler for multivariate t distribution.
 arma::vec rmvt(arma::vec m, arma::mat s, double v) {
   return m + mvrnorm(arma::zeros(size(m)), s) / sqrt(R::rchisq(v) / v);
 }
 
+// Probability density function of multivariate t distribution.
 double dmvt(arma::vec y, arma::vec m, arma::mat s, double v, bool logd) {
   int p = y.n_elem;
   double t1, t2, t3, lds, sign;
@@ -42,7 +55,7 @@ double dmvt(arma::vec y, arma::vec m, arma::mat s, double v, bool logd) {
   }
 }
 
-// Multivariate gamma function \Gamma_p(a). 
+// Multivariate gamma function Gamma_p(a). 
 double mvgamma(int p, double a, bool logd) {
   double y = 0.0;
   for (int j = 0; j < p; j++) {
@@ -57,6 +70,7 @@ double mvgamma(int p, double a, bool logd) {
   }
 }
 
+// Probability density function of Wishart distribution.
 double dwishart(arma::mat x, double n, arma::mat v, bool logd) {
   int p = x.n_rows;
   double y, sign, logdx, logdv;
@@ -72,6 +86,7 @@ double dwishart(arma::mat x, double n, arma::mat v, bool logd) {
   }
 }
 
+// Sampler for Wishart distribution.
 arma::mat rwishart(int df, arma::mat S) {
   int d = S.n_rows;
   arma::vec z(d);
@@ -83,6 +98,7 @@ arma::mat rwishart(int df, arma::mat S) {
   return y;
 }
 
+// Sampler for n random integers in [a,b].
 arma::ivec randint(int n, int a, int b) {
   arma::ivec y(n);
   for (int i = 0; i < n; i++) {

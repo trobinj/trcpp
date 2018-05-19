@@ -5,6 +5,7 @@
 
 #include <RcppArmadillo.h>
 
+arma::vec betalogrpost(arma::mat x, arma::vec y, arma::vec z, arma::vec bold, arma::vec bm, arma::mat bs, double delt);
 arma::vec meanpost(arma::mat y, arma::mat sigma, arma::vec mu0, arma::mat sigma0);
 arma::mat covmpost(arma::mat y, arma::vec mu, int df, arma::mat scale);
 arma::vec betapost(arma::mat x, arma::vec y, double phiv, arma::vec mb, arma::mat Rb);

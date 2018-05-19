@@ -2,6 +2,30 @@
 
 #include <RcppArmadillo.h>
 
+arma::vec repeat(arma::vec x, int n) {
+  int m = x.n_elem;
+  arma::vec y(m * n);
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+      y(i * m + j) = x(j);
+    }
+  }
+  return y;
+}
+
+arma::vec repeat(arma::vec x, arma::vec n) {
+  arma::vec y(accu(n));
+  int m = x.n_elem;
+  int t = 0;
+  for (int i = 0; i < m; i++) {
+    for (int j = 0; j < n(i); j++) {
+      y(t) = x(i);
+      t = t + 1;
+    }
+  }
+  return y;
+}
+
 arma::vec lowertri(arma::mat x) {
   int n = x.n_rows;
   int m = x.n_cols;

@@ -2,6 +2,11 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @export
+bernlong <- function(x, y, z, m, block, samples, bm, bs, phivprior, betadelt, zetadelt) {
+    .Call('_trcpp_bernlong', PACKAGE = 'trcpp', x, y, z, m, block, samples, bm, bs, phivprior, betadelt, zetadelt)
+}
+
+#' @export
 lmerlong <- function(x, z, y, m, block, samples, betaprior, phivprior, psivprior, vm, vs, delt) {
     .Call('_trcpp_lmerlong', PACKAGE = 'trcpp', x, z, y, m, block, samples, betaprior, phivprior, psivprior, vm, vs, delt)
 }
