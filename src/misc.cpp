@@ -2,6 +2,18 @@
 
 #include <RcppArmadillo.h>
 
+void vswap(arma::vec & x, int a, int b) {
+  double y = x(a);
+  x(a) = x(b);
+  x(b) = y;
+}
+
+void vswap(arma::ivec & x, int a, int b) {
+  int y = x(a);
+  x(a) = x(b);
+  x(b) = y;
+}
+
 arma::vec repeat(arma::vec x, int n) {
   int m = x.n_elem;
   arma::vec y(m * n);

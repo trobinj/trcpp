@@ -5,6 +5,8 @@
 
 #include <RcppArmadillo.h>
 
+void vswap(arma::vec & x, int a, int b);
+void vswap(arma::ivec & x, int a, int b);
 arma::vec repeat(arma::vec x, int n);
 arma::vec repeat(arma::vec x, arma::vec n);
 arma::vec lowertri(arma::mat x);

@@ -7,8 +7,8 @@ using namespace Rcpp;
 
 //' @export
 // [[Rcpp::export]]
-List bernlong(arma::mat x, arma::vec y, arma::vec z, int m, arma::vec block, int samples, 
-  arma::vec bm, arma::mat bs, arma::vec phivprior, double betadelt, double zetadelt) {
+List bernlong(arma::vec y, arma::mat x, arma::vec z, int m, arma::vec block, int samples, 
+  arma::mat betaprior, arma::vec phivprior, double betadelt, double zetadelt) {
   
   int p = x.n_cols;
   int q = z.n_cols;
@@ -34,9 +34,9 @@ List bernlong(arma::mat x, arma::vec y, arma::vec z, int m, arma::vec block, int
   
   for (int i = 1; i < samples; i++) {
     
-    beta = betalogrpost(x, y, zoff, beta, bm, bs, betadelt);
+    beta = betalogrpost(x, y, zoff, beta, arma::zeros(p), betaprior, betadelt);
     betasave.row(i) = beta.t();
-    if (any(betasave.row(i) != betasave.row(i-1))) {
+    if (any(betasave.row(i) != betasave.row(i - 1))) {
       betamove++;    
     }
     
@@ -67,7 +67,7 @@ List bernlong(arma::mat x, arma::vec y, arma::vec z, int m, arma::vec block, int
   }
   
   Rcout << "beta transition rate: " << betamove/(samples - 1) << "\n";
-  Rcout << "zeta transition rate: " << zetamove/(samples - 1)/n;
+  Rcout << "zeta transition rate: " << zetamove/(samples - 1)/n << "\n";
 
   return List::create(
     Named("beta") = wrap(betasave),
