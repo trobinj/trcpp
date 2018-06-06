@@ -37,29 +37,37 @@ List lmerlong(arma::vec y, arma::mat x, arma::mat z, int m, arma::vec block,
   unsigned int low, upp;
   arma::umat indx;
   
+  if ((phivprior(0) <= 0) || (phivprior(1) <= 0)) {
+    phiv.fill(0.0);  
+  }
+  
   for (int i = 0; i < samples(0); i++) {
     
-    beta = betablockpost(x, z, y, clust, psiv, Rz, mb, Rb);
+    beta = betablockpost(x, z, y, clust, psiv, phiv, mb, Rb);
     betasave.row(i) = beta.t();
 
-    for (int j = 0; j < n; j++) {
-      low = m * j;
-      upp = low + m - 1;
-      zeta.row(j) = betapost(z.rows(low, upp), y(arma::span(low, upp)) - x.rows(low, upp) * beta, psiv, mz, Rz).t();
-      zoff(arma::span(low, upp)) = z.rows(low, upp) * zeta.row(j).t();
+    if ((phivprior(0) > 0) && (phivprior(1) > 0)) {
+      for (int j = 0; j < n; j++) {
+        low = m * j;
+        upp = low + m - 1;
+        zeta.row(j) = betapost(z.rows(low, upp), y(arma::span(low, upp)) - x.rows(low, upp) * beta, psiv, mz, Rz).t();
+        zoff(arma::span(low, upp)) = z.rows(low, upp) * zeta.row(j).t();
+      }
     }
     
-    psiv = sigmpost(y, x * beta + zoff, psivprior(0), psivprior(1));
-    if (q == 1) {
-      phiv(0,0) = sigmpost(arma::vectorise(zeta), arma::zeros(n), phivprior(0), phivprior(1)); 
-    }
-    else {
-      phiv = covmpost(zeta, arma::zeros(q), phivprior(0), arma::eye(q,q) * phivprior(1));
-    }
+    psiv = sigmpost(y, x * beta + zoff, psivprior(0), psivprior(1));    
     psivsave(i) = psiv;
-    phivsave.row(i) = lowertri(phiv).t(); 
-    Rz = inv(phiv);
-    
+    if ((phivprior(0) > 0) && (phivprior(1) > 0)) {
+      if (q == 1) {
+        phiv(0,0) = sigmpost(arma::vectorise(zeta), arma::zeros(n), phivprior(0), phivprior(1)); 
+      }
+      else {
+        phiv = covmpost(zeta, arma::zeros(q), phivprior(0), arma::eye(q,q) * phivprior(1));
+      }
+      phivsave.row(i) = lowertri(phiv).t(); 
+      Rz = inv(phiv);
+    }
+
     for (int k = 1; k < (b + 1); k++) {
       indx = find(block == k);
       y(indx) = normperm(samples(1), y(indx), x.rows(indx) * beta + zoff(indx), sqrt(psiv));

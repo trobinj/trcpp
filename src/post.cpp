@@ -72,7 +72,7 @@ arma::vec betapost(arma::mat x, arma::vec y, double psiv, arma::vec mb, arma::ma
 }
 
 arma::vec betablockpost(arma::mat x, arma::mat z, arma::vec y, arma::vec clust,
-  double psiv, arma::mat Rz, arma::vec mb, arma::mat Rb) {
+  double psiv, arma::mat phiv, arma::vec mb, arma::mat Rb) {
   
   int n = max(clust);
   int p = x.n_cols;
@@ -103,7 +103,7 @@ arma::vec betablockpost(arma::mat x, arma::mat z, arma::vec y, arma::vec clust,
     zi = z.rows(low, upp);
     yi = y(arma::span(low, upp));
     
-    xw = xi.t() * inv(zi * Rz * zi.t() + arma::eye(m, m) * psiv);
+    xw = xi.t() * inv(zi * phiv * zi.t() + arma::eye(m, m) * psiv);
     xwx = xwx + xw * xi;
     xwy = xwy + xw * yi;
   }
