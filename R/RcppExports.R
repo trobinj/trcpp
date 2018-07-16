@@ -16,3 +16,8 @@ lmerperm <- function(x, z, y, clust, block, samples, betaprior, phivprior, psivp
     .Call('_trcpp_lmerperm', PACKAGE = 'trcpp', x, z, y, clust, block, samples, betaprior, phivprior, psivprior)
 }
 
+#' @export
+multrjct <- function(prb, s) {
+    .Call('_trcpp_multrjct', PACKAGE = 'trcpp', prb, s)
+}
+

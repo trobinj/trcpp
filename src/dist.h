@@ -5,6 +5,7 @@
 
 #include <RcppArmadillo.h>
 
+int rdiscrete(arma::vec wght);
 double rtnorm(double mu, double sigma, double a, double b);
 double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd);
 arma::vec mvrnorm(arma::vec mu, arma::mat sigma);

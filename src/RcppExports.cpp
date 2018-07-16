@@ -64,11 +64,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// multrjct
+arma::mat multrjct(arma::mat prb, arma::vec s);
+RcppExport SEXP _trcpp_multrjct(SEXP prbSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type prb(prbSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type s(sSEXP);
+    rcpp_result_gen = Rcpp::wrap(multrjct(prb, s));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
+    {"_trcpp_multrjct", (DL_FUNC) &_trcpp_multrjct, 2},
     {NULL, NULL, 0}
 };
 

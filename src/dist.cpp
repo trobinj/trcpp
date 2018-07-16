@@ -5,6 +5,21 @@
 const double log2pi = log(2.0 * M_PI);
 const double logpi = log(M_PI);
 
+// Sample integer from 0 to n-1 with given sampling weights.
+int rdiscrete(arma::vec wght) {
+  int n = wght.n_elem;
+  arma::vec prob = wght / accu(wght);
+  double u = R::runif(0.0, 1.0);
+  double cprb = 0.0;
+  for (int y = 0; y < (n - 1); y++) {
+    cprb = cprb + prob(y);
+    if (u < cprb) {
+      return y;
+    } 
+  }
+  return n - 1; 
+}
+
 // Rejection sampler for truncated normal distribution. 
 double rtnorm(double mu, double sigma, double a, double b) {
   double y;
@@ -101,8 +116,9 @@ arma::mat rwishart(int df, arma::mat S) {
 // Sampler for n random integers in [a,b].
 arma::ivec randint(int n, int a, int b) {
   arma::ivec y(n);
+  int c = b - a + 1;
   for (int i = 0; i < n; i++) {
-    y(i) = floor(R::runif(0.0, 1.0) * (b - a + 1) + a);  
+    y(i) = floor(R::runif(0.0, 1.0) * c) + a;  
   }
   return y;
 }
