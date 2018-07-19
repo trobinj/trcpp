@@ -5,10 +5,6 @@
 
 #include <RcppArmadillo.h>
 
-double tnsigma(arma::vec y, double sold, double mu, double sigma, double a, double b);
-arma::vec varmsamp(arma::vec y, arma::mat x, arma::mat z, double m, 
-  arma::vec beta, arma::vec mb, arma::mat Rb, 
-  arma::vec vold, arma::vec vm, arma::mat vs,
-  arma::vec phivprior, arma::vec psivprior, double delt);
+arma::vec rnormsum(arma::vec mu, arma::vec sigma, double t, int n, double delta);
 
 #endif

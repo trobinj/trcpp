@@ -28,6 +28,7 @@ arma::mat multjcbn(arma::mat prb, arma::vec t, arma::vec s) {
   return J;
 }
 
+// Need to add more sophisticated iteration control here.
 arma::vec multroot(arma::mat prb, arma::vec s) {
   int m = prb.n_cols;
   arma::vec y(m, arma::fill::zeros);

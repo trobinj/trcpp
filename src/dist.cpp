@@ -5,6 +5,16 @@
 const double log2pi = log(2.0 * M_PI);
 const double logpi = log(M_PI);
 
+// Sampler for n random integers in [a,b].
+arma::ivec randint(int n, int a, int b) {
+  arma::ivec y(n);
+  int c = b - a + 1;
+  for (int i = 0; i < n; i++) {
+    y(i) = floor(R::runif(0.0, 1.0) * c) + a;  
+  }
+  return y;
+}
+
 // Sample integer from 0 to n-1 with given sampling weights.
 int rdiscrete(arma::vec wght) {
   int n = wght.n_elem;
@@ -113,12 +123,3 @@ arma::mat rwishart(int df, arma::mat S) {
   return y;
 }
 
-// Sampler for n random integers in [a,b].
-arma::ivec randint(int n, int a, int b) {
-  arma::ivec y(n);
-  int c = b - a + 1;
-  for (int i = 0; i < n; i++) {
-    y(i) = floor(R::runif(0.0, 1.0) * c) + a;  
-  }
-  return y;
-}
