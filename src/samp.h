@@ -5,6 +5,6 @@
 
 #include <RcppArmadillo.h>
 
-arma::vec rnormsum(arma::vec mu, arma::vec sigma, double t, int n, double delta);
+arma::vec rnormsum(arma::vec mu, arma::vec sigma, double t, int n, double delta, bool rate = false);
 
 #endif

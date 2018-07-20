@@ -38,8 +38,6 @@ arma::vec multroot(arma::mat prb, arma::vec s) {
   return y;
 }
 
-//' @export
-// [[Rcpp::export]]
 arma::mat multrjct(arma::mat prb, arma::vec s) {
   int n = prb.n_rows;
   int m = prb.n_cols;

@@ -16,13 +16,3 @@ lmerperm <- function(x, z, y, clust, block, samples, betaprior, phivprior, psivp
     .Call('_trcpp_lmerperm', PACKAGE = 'trcpp', x, z, y, clust, block, samples, betaprior, phivprior, psivprior)
 }
 
-#' @export
-rnormsum <- function(mu, sigma, t, n, delta) {
-    .Call('_trcpp_rnormsum', PACKAGE = 'trcpp', mu, sigma, t, n, delta)
-}
-
-#' @export
-multrjct <- function(prb, s) {
-    .Call('_trcpp_multrjct', PACKAGE = 'trcpp', prb, s)
-}
-

@@ -64,40 +64,11 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rnormsum
-arma::mat rnormsum(arma::vec mu, arma::vec sigma, double t, int n, double delta);
-RcppExport SEXP _trcpp_rnormsum(SEXP muSEXP, SEXP sigmaSEXP, SEXP tSEXP, SEXP nSEXP, SEXP deltaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< double >::type t(tSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type delta(deltaSEXP);
-    rcpp_result_gen = Rcpp::wrap(rnormsum(mu, sigma, t, n, delta));
-    return rcpp_result_gen;
-END_RCPP
-}
-// multrjct
-arma::mat multrjct(arma::mat prb, arma::vec s);
-RcppExport SEXP _trcpp_multrjct(SEXP prbSEXP, SEXP sSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type prb(prbSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type s(sSEXP);
-    rcpp_result_gen = Rcpp::wrap(multrjct(prb, s));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
-    {"_trcpp_rnormsum", (DL_FUNC) &_trcpp_rnormsum, 5},
-    {"_trcpp_multrjct", (DL_FUNC) &_trcpp_multrjct, 2},
     {NULL, NULL, 0}
 };
 
