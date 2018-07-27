@@ -9,8 +9,10 @@ arma::ivec randint(int n, int a, int b);
 int rdiscrete(arma::vec wght);
 
 double rtnorm(double mu, double sigma, double a, double b);
+double rtnormpos(double m, double s, double a);
 double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd);
 arma::vec mvrnorm(arma::vec mu, arma::mat sigma);
+arma::mat mvrnorm(arma::mat m, arma::mat u, arma::mat v);
 
 arma::vec rmvt(arma::vec m, arma::mat s, double v);
 double dmvt(arma::vec y, arma::vec m, arma::mat s, double v, bool logd);
