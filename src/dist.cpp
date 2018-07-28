@@ -5,6 +5,20 @@
 const double log2pi = log(2.0 * M_PI);
 const double logpi = log(M_PI);
 
+// Sampler for a truncated positive (negative) normal random variable. This uses a rejection
+// sampling algorithm proposed by Robert (1995, Statistics and Computing). 
+double rtnormpos(double m, double s, bool pos) {
+  double l, a, z, p, u; 
+  l = pos ? -m/s : m/s;
+  a = (l + sqrt(pow(l, 2) + 4.0)) / 2.0;
+  do {
+    z = R::rexp(1.0) / a + l;
+    p = exp(-pow(z - a, 2) / 2.0);   
+    u = R::runif(0.0, 1.0);
+  } while(u > p);
+  return pos ? z * s + m : -z * s + m;
+}
+
 // Sampler for n random integers in [a,b].
 arma::ivec randint(int n, int a, int b) {
   arma::ivec y(n);
@@ -57,6 +71,14 @@ double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd) {
 arma::vec mvrnorm(arma::vec mu, arma::mat sigma) {
   int p = sigma.n_cols;
   return mu + arma::chol(sigma, "lower") * arma::randn(p);
+}
+
+// Sampler for matrix-variate normal distribution.
+arma::mat mvrnorm(arma::mat m, arma::mat u, arma::mat v) {
+  arma::mat x = arma::randn(size(m));
+  arma::mat a = arma::chol(u, "lower");
+  arma::mat b = arma::chol(v, "upper");
+  return m + a * x * b;
 }
 
 // Sampler for multivariate t distribution.

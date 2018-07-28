@@ -3,5 +3,6 @@
 export(bernlong)
 export(lmerlong)
 export(lmerperm)
+export(mprobit)
 importFrom(Rcpp,evalCpp)
 useDynLib(trcpp)
