@@ -1,7 +1,43 @@
+// MCMC algorithm for a multivariate probit model with unconstrained correlation structure based on an
+// algorithm proposed by Talhouk et al. (2012, Journal of Computational and Graphical Statistics).
+
 #include <RcppArmadillo.h>
-#include "dist.h"
+#include "dist.h" // for mvrnorm, rtnormpos, and rwishart
+#include "misc.h" // for lowertri
 
 using namespace Rcpp;
+
+arma::vec cdists(arma::mat s) {
+  int n = s.n_cols;
+  arma::vec y(n);
+  for (int j = 0; j < n; j++) {
+    arma::mat s22 = s;
+    s22.shed_row(j);
+    s22.shed_col(j);
+    s22 = inv(s22);
+    arma::mat s12 = s.row(j);
+    s12.shed_col(j);
+    y(j) = s(j,j) - as_scalar(s12 * s22 * s12.t());
+  }
+  return y;
+}
+
+double cdistm(arma::vec m, arma::mat s, arma::vec x, int j) {
+  int n = s.n_cols;
+  arma::mat s22 = s;
+  s22.shed_row(j);
+  s22.shed_col(j);
+  s22 = inv(s22);
+  arma::mat s12 = s.row(j);
+  s12.shed_col(j);
+  arma::mat m2(n, 1);
+  m2.col(0) = m;
+  m2.shed_row(j);
+  arma::mat x2(n, 1);
+  x2.col(0) = x;
+  x2.shed_row(j);
+  return m(j) + as_scalar(s12 * s22 * (x2 - m2)); 
+}
 
 //' @export
 // [[Rcpp::export]]
@@ -13,22 +49,57 @@ List mprobit(arma::mat Y, arma::mat X, int samples) {
   arma::mat M(n, m);
   arma::mat B(p, m, arma::fill::zeros);
   arma::mat Z(n, m, arma::fill::zeros);
+  arma::mat W(n, m, arma::fill::zeros);
+  arma::mat D(m, m, arma::fill::eye);
+  arma::mat R(m, m, arma::fill::eye);
+  arma::mat S(m, m, arma::fill::eye);
+  arma::mat G(p, m, arma::fill::zeros);
+  arma::mat U(n, m);
   
-  arma::mat Bsave(samples, p * m);
+  arma::vec r(m);
   
-  for (int t = 0; t < samples; t++) {
+  arma::mat T(p, p);
+  T = inv(X.t() * X + inv(sqrt(3) * arma::eye(p, p)));
+    
+  arma::mat Bsave(samples, p * m, arma::fill::zeros);
+  arma::mat Rsave(samples, m * (m + 1) / 2);
+  
+  double mij;
+  arma::vec sij;
+  
+  for (int k = 0; k < samples; k++) {
     
     M = X * B;
-    
-    // sample latent responses
+
+    sij = cdists(R);
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
-        Z(i, j) = 0.0;
+        mij = cdistm(vectorise(M.row(i)), R, vectorise(Z.row(i)), j); 
+        Z(i, j) = rtnormpos(mij, std::sqrt(sij(j)), Y(i, j) == 1);
       }
     }
+
+    r = diagvec(inv(R));
+    for (int j = 0; j < m; j++) {
+      D(j, j) = 1 / sqrt(R::rgamma((m + 1) / 2.0, r(j) / 2.0));
+    }
+    W = Z * D;    
+    
+    U = T * X.t() * W;
+    S = inv(rwishart(n + 2, inv(W.t() * W + arma::eye(m,m) - U.t() * inv(T) * U)));
+    
+    G = mvrnorm(U, T, D * R * D);
+    
+    D = inv(sqrt(diagmat(S)));
+    B = G * D;
+    R = D * S * D;
+    
+    Bsave.row(k) = vectorise(B).t();
+    Rsave.row(k) = lowertri(R).t();
   }
   
   return List::create(
-    Named("beta") = wrap(Bsave)
+    Named("beta") = wrap(Bsave),
+    Named("corr") = wrap(Rsave)
   );
 }
