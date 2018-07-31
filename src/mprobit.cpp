@@ -1,5 +1,6 @@
 // MCMC algorithm for a multivariate probit model with unconstrained correlation structure based on an
-// algorithm proposed by Talhouk et al. (2012, Journal of Computational and Graphical Statistics).
+// algorithm proposed by Talhouk et al. (2012, Journal of Computational and Graphical Statistics), using
+// a marginally uniform prior on the correlation matrix proposed by Barnard et al. (2000, Statistica Sinica).
 
 #include <RcppArmadillo.h>
 #include "dist.h" // for mvrnorm, rtnormpos, and rwishart
@@ -7,6 +8,7 @@
 
 using namespace Rcpp;
 
+// Function to compute conditional variance.
 arma::vec cdists(arma::mat s) {
   int n = s.n_cols;
   arma::vec y(n);
@@ -22,6 +24,7 @@ arma::vec cdists(arma::mat s) {
   return y;
 }
 
+// Function to compute conditional mean.
 double cdistm(arma::vec m, arma::mat s, arma::vec x, int j) {
   int n = s.n_cols;
   arma::mat s22 = s;
@@ -59,7 +62,7 @@ List mprobit(arma::mat Y, arma::mat X, int samples) {
   arma::vec r(m);
   
   arma::mat T(p, p);
-  T = inv(X.t() * X + inv(sqrt(3) * arma::eye(p, p)));
+  T = inv(X.t() * X + inv(arma::eye(p, p)));
     
   arma::mat Bsave(samples, p * m, arma::fill::zeros);
   arma::mat Rsave(samples, m * (m + 1) / 2);
@@ -69,30 +72,42 @@ List mprobit(arma::mat Y, arma::mat X, int samples) {
   
   for (int k = 0; k < samples; k++) {
     
+    // Sample latent responses.
+    
     M = X * B;
-
-    sij = cdists(R);
+    sij = sqrt(cdists(R));
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
         mij = cdistm(vectorise(M.row(i)), R, vectorise(Z.row(i)), j); 
-        Z(i, j) = rtnormpos(mij, std::sqrt(sij(j)), Y(i, j) == 1);
+        if (Y(i, j) < 0) {
+          Z(i, j) = R::rnorm(mij, sij(j)); // missing data coded as any negative number
+        } else {
+          Z(i, j) = rtnormpos(mij, sij(j), Y(i, j) == 1);
+        }
       }
     }
 
+    // Sample variances and covariances.
+    
     r = diagvec(inv(R));
     for (int j = 0; j < m; j++) {
       D(j, j) = 1 / sqrt(R::rgamma((m + 1) / 2.0, r(j) / 2.0));
     }
     W = Z * D;    
-    
     U = T * X.t() * W;
     S = inv(rwishart(n + 2, inv(W.t() * W + arma::eye(m,m) - U.t() * inv(T) * U)));
     
+    // Sample beta parameters.
+    
     G = mvrnorm(U, T, D * R * D);
+    
+    // Standardize beta parameters and covariances into correlations. 
     
     D = inv(sqrt(diagmat(S)));
     B = G * D;
     R = D * S * D;
+    
+    // Save sampled parameters.
     
     Bsave.row(k) = vectorise(B).t();
     Rsave.row(k) = lowertri(R).t();

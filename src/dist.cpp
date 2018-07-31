@@ -13,7 +13,7 @@ double rtnormpos(double m, double s, bool pos) {
   a = (l + sqrt(pow(l, 2) + 4.0)) / 2.0;
   do {
     z = R::rexp(1.0) / a + l;
-    p = exp(-pow(z - a, 2) / 2.0);   
+    p = exp(-pow(z - a, 2) / 2.0);
     u = R::runif(0.0, 1.0);
   } while(u > p);
   return pos ? z * s + m : -z * s + m;
