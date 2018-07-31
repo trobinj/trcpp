@@ -62,7 +62,7 @@ List mprobit(arma::mat Y, arma::mat X, int samples) {
   arma::vec r(m);
   
   arma::mat T(p, p);
-  T = inv(X.t() * X + inv(arma::eye(p, p)));
+  T = inv(X.t() * X + inv(arma::eye(p, p))); // note prior specification here
     
   arma::mat Bsave(samples, p * m, arma::fill::zeros);
   arma::mat Rsave(samples, m * (m + 1) / 2);
