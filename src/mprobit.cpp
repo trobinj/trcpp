@@ -44,7 +44,7 @@ double cdistm(arma::vec m, arma::mat s, arma::vec x, int j) {
 
 //' @export
 // [[Rcpp::export]]
-List mprobit(arma::mat Y, arma::mat X, int samples) {
+List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples) {
   int n = Y.n_rows;
   int m = Y.n_cols;
   int p = X.n_cols;
@@ -72,18 +72,31 @@ List mprobit(arma::mat Y, arma::mat X, int samples) {
   
   for (int k = 0; k < samples; k++) {
     
+    if ((k + 1) % 100 == 0) {
+      Rcpp::Rcout << "Sample: " << k + 1 << "\n";
+    }
+    
     // Sample latent responses.
     
     M = X * B;
     sij = sqrt(cdists(R));
     for (int i = 0; i < n; i++) {
-      for (int j = 0; j < m; j++) {
-        mij = cdistm(vectorise(M.row(i)), R, vectorise(Z.row(i)), j); 
-        if (Y(i, j) < 0) {
-          Z(i, j) = R::rnorm(mij, sij(j)); // missing data coded as any negative number
-        } else {
-          Z(i, j) = rtnormpos(mij, sij(j), Y(i, j) == 1);
+      if (d(i) < 0) {
+        for (int j = 0; j < m; j++) {
+          mij = cdistm(vectorise(M.row(i)), R, vectorise(Z.row(i)), j);
+          if (Y(i, j) < 0) { 
+            Z(i, j) = R::rnorm(mij, sij(j));
+          } else {
+            Z(i, j) = rtnormpos(mij, sij(j), Y(i, j) == 1); 
+          }
         }
+      } else {
+        do {
+          Z.row(i) = mvrnorm(vectorise(M.row(i)), R).t();
+          for (int j = 0; j < m; j++) {
+            Y(i, j) = Z(i, j) > 0 ? 1 : 0;
+          }
+        } while (accu(Y.row(i)) != d(i));
       }
     }
 
@@ -99,7 +112,7 @@ List mprobit(arma::mat Y, arma::mat X, int samples) {
     
     // Sample beta parameters.
     
-    G = mvrnorm(U, T, D * R * D);
+    G = mvrnorm(U, T, S);
     
     // Standardize beta parameters and covariances into correlations. 
     

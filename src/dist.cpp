@@ -19,6 +19,15 @@ double rtnormpos(double m, double s, bool pos) {
   return pos ? z * s + m : -z * s + m;
 }
 
+// Naive rejection sampler for truncated normal distribution. 
+double rtnorm(double mu, double sigma, double a, double b) {
+  double y;
+  do {
+    y = R::rnorm(mu, sigma);
+  } while ((a > y) || (y > b));
+  return y;
+}
+
 // Sampler for n random integers in [a,b].
 arma::ivec randint(int n, int a, int b) {
   arma::ivec y(n);
@@ -42,15 +51,6 @@ int rdiscrete(arma::vec wght) {
     } 
   }
   return n - 1; 
-}
-
-// Rejection sampler for truncated normal distribution. 
-double rtnorm(double mu, double sigma, double a, double b) {
-  double y;
-  do {
-    y = R::rnorm(mu, sigma);
-  } while ((a > y) || (y > b));
-  return y;
 }
 
 // Probability density function of a multivariate normal distribution.

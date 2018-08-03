@@ -17,7 +17,7 @@ lmerperm <- function(x, z, y, clust, block, samples, betaprior, phivprior, psivp
 }
 
 #' @export
-mprobit <- function(Y, X, samples) {
-    .Call('_trcpp_mprobit', PACKAGE = 'trcpp', Y, X, samples)
+mprobit <- function(Y, X, d, samples) {
+    .Call('_trcpp_mprobit', PACKAGE = 'trcpp', Y, X, d, samples)
 }
 

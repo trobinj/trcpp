@@ -65,15 +65,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // mprobit
-List mprobit(arma::mat Y, arma::mat X, int samples);
-RcppExport SEXP _trcpp_mprobit(SEXP YSEXP, SEXP XSEXP, SEXP samplesSEXP) {
+List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples);
+RcppExport SEXP _trcpp_mprobit(SEXP YSEXP, SEXP XSEXP, SEXP dSEXP, SEXP samplesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type d(dSEXP);
     Rcpp::traits::input_parameter< int >::type samples(samplesSEXP);
-    rcpp_result_gen = Rcpp::wrap(mprobit(Y, X, samples));
+    rcpp_result_gen = Rcpp::wrap(mprobit(Y, X, d, samples));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -82,7 +83,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
-    {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 3},
+    {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 4},
     {NULL, NULL, 0}
 };
 
