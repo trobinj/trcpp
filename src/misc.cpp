@@ -32,7 +32,7 @@ arma::vec repeat(arma::vec x, arma::vec n) {
   for (int i = 0; i < m; i++) {
     for (int j = 0; j < n(i); j++) {
       y(t) = x(i);
-      t = t + 1;
+      t++;
     }
   }
   return y;
@@ -50,7 +50,7 @@ arma::vec lowertri(arma::mat x) {
   for (int j = 0; j < std::min(n,m); j++) {
     for (int i = j; i < n; i++) {
       y(t) = x(i,j);
-      t = t + 1;
+      t++;
     }
   }
   return y;
@@ -63,7 +63,7 @@ arma::mat vec2symm(arma::vec x) {
   for (int j = 0; j < n; j++) {
     for (int i = j; i < n; i++) {
       y(i,j) = x(t);
-      t = t + 1;
+      t++;
     }
   }
   return symmatl(y);
@@ -90,7 +90,7 @@ arma::umat indexmat(arma::vec x) {
     if (x(t) != x(t - 1)) {
       y(i, 1) = t - 1;
       y(i + 1, 0) = t;
-      i = i + 1;
+      i++;
     }
   }
   return y;

@@ -78,12 +78,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pmvnorm
+double pmvnorm(arma::mat s, arma::vec a, arma::vec b, double epsi, double alph, int nmax);
+RcppExport SEXP _trcpp_pmvnorm(SEXP sSEXP, SEXP aSEXP, SEXP bSEXP, SEXP epsiSEXP, SEXP alphSEXP, SEXP nmaxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type s(sSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type a(aSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type b(bSEXP);
+    Rcpp::traits::input_parameter< double >::type epsi(epsiSEXP);
+    Rcpp::traits::input_parameter< double >::type alph(alphSEXP);
+    Rcpp::traits::input_parameter< int >::type nmax(nmaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(pmvnorm(s, a, b, epsi, alph, nmax));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
     {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 4},
+    {"_trcpp_pmvnorm", (DL_FUNC) &_trcpp_pmvnorm, 6},
     {NULL, NULL, 0}
 };
 

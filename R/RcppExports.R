@@ -21,3 +21,8 @@ mprobit <- function(Y, X, d, samples) {
     .Call('_trcpp_mprobit', PACKAGE = 'trcpp', Y, X, d, samples)
 }
 
+#' @export
+pmvnorm <- function(s, a, b, epsi, alph, nmax) {
+    .Call('_trcpp_pmvnorm', PACKAGE = 'trcpp', s, a, b, epsi, alph, nmax)
+}
+

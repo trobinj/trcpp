@@ -72,7 +72,7 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples) {
   
   for (int k = 0; k < samples; k++) {
     
-    if ((k + 1) % 100 == 0) {
+    if ((k + 1) % 1000 == 0) {
       Rcpp::Rcout << "Sample: " << k + 1 << "\n";
     }
     
@@ -90,7 +90,8 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples) {
             Z(i, j) = rtnormpos(mij, sij(j), Y(i, j) == 1); 
           }
         }
-      } else {
+      } // add cases here for when d(i) = 0 or d(i) = m
+      else {
         do {
           Z.row(i) = mvrnorm(vectorise(M.row(i)), R).t();
           for (int j = 0; j < m; j++) {
