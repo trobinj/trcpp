@@ -7,6 +7,11 @@ bernlong <- function(y, x, z, m, block, samples, betaprior, phivprior, betadelt,
 }
 
 #' @export
+foo <- function(x) {
+    invisible(.Call('_trcpp_foo', PACKAGE = 'trcpp', x))
+}
+
+#' @export
 lmerlong <- function(y, x, z, m, block, samples, betaprior, phivprior, psivprior) {
     .Call('_trcpp_lmerlong', PACKAGE = 'trcpp', y, x, z, m, block, samples, betaprior, phivprior, psivprior)
 }

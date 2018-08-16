@@ -2,6 +2,8 @@
 
 using namespace Rcpp;
 
+// Note: This function is currenty broken. Do not use. 
+
 //' @export
 // [[Rcpp::export]]
 double pmvnorm(arma::mat s, arma::vec a, arma::vec b, double epsi, double alph, int nmax) {

@@ -26,6 +26,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// foo
+void foo(arma::mat x);
+RcppExport SEXP _trcpp_foo(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    foo(x);
+    return R_NilValue;
+END_RCPP
+}
 // lmerlong
 List lmerlong(arma::vec y, arma::mat x, arma::mat z, int m, arma::vec block, arma::vec samples, arma::mat betaprior, arma::vec phivprior, arma::vec psivprior);
 RcppExport SEXP _trcpp_lmerlong(SEXP ySEXP, SEXP xSEXP, SEXP zSEXP, SEXP mSEXP, SEXP blockSEXP, SEXP samplesSEXP, SEXP betapriorSEXP, SEXP phivpriorSEXP, SEXP psivpriorSEXP) {
@@ -97,6 +107,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
+    {"_trcpp_foo", (DL_FUNC) &_trcpp_foo, 1},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
     {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 4},
