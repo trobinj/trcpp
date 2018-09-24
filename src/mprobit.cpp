@@ -4,14 +4,12 @@
 // the correlation matrix proposed by Barnard et al. (2000, Statistica Sinica).
 
 #include <RcppArmadillo.h>
-#include "dist.h" // for mvrnorm, rtnormpos, and rwishart
+#include "dist.h" // for mvrnorm, rnormpos, and rwishart
 #include "misc.h" // for lowertri
 
 using namespace Rcpp;
 
-// Note: Create a new function to create s12 * s22 as a mat class and then modify
-// cdists and cdistm to use this object to avoid reduncant calculations.
-
+// Function to compute condition "regression coefficients".
 arma::mat cdistb(arma::mat s) {
   int n = s.n_cols;
   arma::mat y(n, n - 1);
@@ -26,6 +24,7 @@ arma::mat cdistb(arma::mat s) {
   return y;
 }
 
+// Function to compute conditional mean.
 double cdistm(arma::vec m, arma::mat b, arma::vec x, int j) {
   int n = m.n_elem;
   arma::mat m2(n, 1);
@@ -55,8 +54,8 @@ arma::vec cdists(arma::mat s) {
 
 //' @export
 // [[Rcpp::export]]
-List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples) {
-  
+List mprobit(arma::imat Y, arma::mat X, arma::ivec d, int samples, int maxy) {
+
   int n = Y.n_rows;
   int m = Y.n_cols;
   int p = X.n_cols;
@@ -75,24 +74,23 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples) {
   arma::vec r(m);
 
   arma::mat T(p, p);
-  T = inv(X.t() * X + inv(arma::eye(p, p))); // note prior specification here
+  T = inv(X.t() * X + inv(arma::eye(p,p))); // note prior specification here
 
   arma::mat Bsave(samples, p * m, arma::fill::zeros);
   arma::mat Rsave(samples, m * (m + 1) / 2);
 
   double mj;
+  arma::vec mi(m);
   arma::vec sj;
   arma::mat bj(m, m - 1);
-  
+
   for (int k = 0; k < samples; k++) {
 
     if ((k + 1) % 1000 == 0) {
       Rcpp::Rcout << "Sample: " << k + 1 << "\n";
     }
 
-    // Sample latent responses. For the future: Optimize by removing
-    // need for some if not all branching. 
-
+    // Sample latent responses.
     M = X * B;
     C = arma::chol(R, "lower");
     sj = sqrt(cdists(R));
@@ -104,22 +102,22 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples) {
           if (std::isnan(Y(i, j))) {
             Z(i, j) = R::rnorm(mj, sj(j));
           } else {
-            Z(i, j) = rtnormpos(mj, sj(j), Y(i, j) == 1);
+            Z(i, j) = rnormpos(mj, sj(j), Y(i, j) == 1);
           }
         }
       }
       else {
+        mi = vectorise(M.row(i));
         do {
-          Z.row(i) = mvrnorm(vectorise(M.row(i)), C, true).t();
+          Z.row(i) = mvrnorm(mi, C, true).t();
           for (int j = 0; j < m; j++) {
             Y(i, j) = Z(i, j) > 0 ? 1 : 0;
           }
-        } while (accu(Y.row(i)) != d(i));
+        } while (std::min(accu(Y.row(i)), maxy) != d(i));
       }
     }
 
     // Sample variances and covariances.
-
     r = diagvec(inv(R));
     for (int j = 0; j < m; j++) {
       D(j, j) = 1 / sqrt(R::rgamma((m + 1) / 2.0, r(j) / 2.0));
@@ -128,18 +126,15 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples) {
     U = T * X.t() * W;
     S = inv(rwishart(n + 2, inv(W.t() * W + arma::eye(m, m) - U.t() * inv(T) * U)));
 
-    // Sample beta parameters.
-
+    // Sample beta parameters
     G = mvrnorm(U, T, S);
 
     // Standardize beta parameters and covariances into correlations.
-
     D = inv(sqrt(diagmat(S)));
     B = G * D;
     R = D * S * D;
 
     // Save sampled parameters.
-
     Bsave.row(k) = vectorise(B).t();
     Rsave.row(k) = lowertri(R).t();
   }

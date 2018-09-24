@@ -75,16 +75,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // mprobit
-List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples);
-RcppExport SEXP _trcpp_mprobit(SEXP YSEXP, SEXP XSEXP, SEXP dSEXP, SEXP samplesSEXP) {
+List mprobit(arma::imat Y, arma::mat X, arma::ivec d, int samples, int maxy);
+RcppExport SEXP _trcpp_mprobit(SEXP YSEXP, SEXP XSEXP, SEXP dSEXP, SEXP samplesSEXP, SEXP maxySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::imat >::type Y(YSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type d(dSEXP);
+    Rcpp::traits::input_parameter< arma::ivec >::type d(dSEXP);
     Rcpp::traits::input_parameter< int >::type samples(samplesSEXP);
-    rcpp_result_gen = Rcpp::wrap(mprobit(Y, X, d, samples));
+    Rcpp::traits::input_parameter< int >::type maxy(maxySEXP);
+    rcpp_result_gen = Rcpp::wrap(mprobit(Y, X, d, samples, maxy));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -104,14 +105,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// raschic
+List raschic(arma::mat Y, arma::mat X, arma::mat Z, arma::vec d, int samples, int maxy);
+RcppExport SEXP _trcpp_raschic(SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP dSEXP, SEXP samplesSEXP, SEXP maxySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type d(dSEXP);
+    Rcpp::traits::input_parameter< int >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< int >::type maxy(maxySEXP);
+    rcpp_result_gen = Rcpp::wrap(raschic(Y, X, Z, d, samples, maxy));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
     {"_trcpp_foo", (DL_FUNC) &_trcpp_foo, 1},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
-    {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 4},
+    {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 5},
     {"_trcpp_pmvnorm", (DL_FUNC) &_trcpp_pmvnorm, 6},
+    {"_trcpp_raschic", (DL_FUNC) &_trcpp_raschic, 6},
     {NULL, NULL, 0}
 };
 

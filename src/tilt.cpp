@@ -1,7 +1,7 @@
 // Functions for tilted rejection sampling.
 
 #include <RcppArmadillo.h>
-#include "dist.h"
+#include "dist.h" // for rdiscrete
 
 arma::vec multscor(arma::mat prb, arma::vec t, arma::vec s) {
   int n = prb.n_rows;
@@ -77,8 +77,8 @@ double bernroot(arma::vec prb, int s, double a, double b, int n) {
     fb = bernscor(prb, b, s);
     fa = bernscor(prb, a, s);
     if (fb == fa) {
-      break;  
-    } 
+      break;
+    }
     c = b - fb * (b - a) / (fb - fa);
     a = b;
     b = c;

@@ -7,7 +7,7 @@ const double logpi = log(M_PI);
 
 // Sampler for a truncated positive (or negative) normal random variable using a
 // rejection sampling algorithm proposed by Robert (1995, Statistics and Computing).
-double rtnormpos(double m, double s, bool pos) {
+double rnormpos(double m, double s, bool pos) {
   double l, a, z, p, u;
   l = pos ? -m/s : m/s;
   a = (l + sqrt(pow(l, 2) + 4.0)) / 2.0;
@@ -36,6 +36,10 @@ arma::ivec randint(int n, int a, int b) {
     y(i) = floor(R::runif(0.0, 1.0) * c) + a;
   }
   return y;
+}
+
+int randint(int a, int b) {
+  return floor(R::runif(0.0, 1.0) * (b - a + 1)) + a;
 }
 
 // Sample integer from 0 to n-1 with given sampling weights.
@@ -146,7 +150,7 @@ arma::mat rwishart(int df, arma::mat S) {
   arma::mat y(d, d, arma::fill::zeros);
   arma::mat C(d, d); C = arma::chol(S, "lower");
   for (int i = 0; i < df; i++) {
-    z = mvrnorm(arma::zeros(d), C, true); 
+    z = mvrnorm(arma::zeros(d), C, true);
     y = y + z * z.t();
   }
   return y;

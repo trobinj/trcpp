@@ -22,12 +22,17 @@ lmerperm <- function(x, z, y, clust, block, samples, betaprior, phivprior, psivp
 }
 
 #' @export
-mprobit <- function(Y, X, d, samples) {
-    .Call('_trcpp_mprobit', PACKAGE = 'trcpp', Y, X, d, samples)
+mprobit <- function(Y, X, d, samples, maxy) {
+    .Call('_trcpp_mprobit', PACKAGE = 'trcpp', Y, X, d, samples, maxy)
 }
 
 #' @export
 pmvnorm <- function(s, a, b, epsi, alph, nmax) {
     .Call('_trcpp_pmvnorm', PACKAGE = 'trcpp', s, a, b, epsi, alph, nmax)
+}
+
+#' @export
+raschic <- function(Y, X, Z, d, samples, maxy) {
+    .Call('_trcpp_raschic', PACKAGE = 'trcpp', Y, X, Z, d, samples, maxy)
 }
 
