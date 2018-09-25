@@ -11,6 +11,7 @@ int rdiscrete(arma::vec wght);
 
 double rtnorm(double mu, double sigma, double a, double b);
 double rnormpos(double m, double s, bool pos);
+double rnormtail(double a, double m, double s, bool pos);
 
 double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd);
 

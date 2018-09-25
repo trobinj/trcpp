@@ -43,7 +43,7 @@ List raschic(arma::mat Y, arma::mat X, arma::mat Z, arma::vec d, int samples, in
             u(i * m + j) = R::rnorm(as_scalar(X.row(i * m + j) * beta +
               Z.row(i * m + j) * zeta.row(i).t()), 1.0);
           } else {
-            u(i * m + j) = rnormpos(as_scalar(X.row(i * m + j) * beta +
+            u(i * m + j) = rnormmar(as_scalar(X.row(i * m + j) * beta +
               Z.row(i * m + j) * zeta.row(i).t()), 1.0, Y(i,j) == 1);
           }
         }

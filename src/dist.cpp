@@ -5,6 +5,26 @@
 const double log2pi = log(2.0 * M_PI);
 const double logpi = log(M_PI);
 
+// Sampler for sampling from the tail of a truncated normal distribution
+// using either Marsaglia's (1964, Technometrics) rejection sampler or a
+// simple rejection sampler, depending on the point of truncation.
+double rnormtail(double a, double m, double s, bool pos) {
+  double l, u, v, z;
+  l = pos ? (a-m)/s : (a-m)/s;
+  if (l > 0) {
+    do {
+      u = R::runif(0.0, 1.0);
+      v = R::runif(0.0, 1.0);
+      z = sqrt(pow(l,2) - 2*log(u));
+    } while(v < l / z);
+  } else {
+    do {
+      z = R::rnorm(0.0, 1.0);
+    } while (z < l);
+  }
+  return pos ? z * s + m : -z * s + m;
+}
+
 // Sampler for a truncated positive (or negative) normal random variable using a
 // rejection sampling algorithm proposed by Robert (1995, Statistics and Computing).
 double rnormpos(double m, double s, bool pos) {
@@ -18,6 +38,7 @@ double rnormpos(double m, double s, bool pos) {
   } while(u > p);
   return pos ? z * s + m : -z * s + m;
 }
+// Note: Make this more efficient by using a simpler approach for when l < 0.
 
 // Naive rejection sampler for truncated normal distribution.
 double rtnorm(double mu, double sigma, double a, double b) {
