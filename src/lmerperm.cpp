@@ -45,12 +45,12 @@ List lmerperm(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
   arma::vec mpri(2);
   arma::mat spri(2,2);
     
-  for (int i = 0; i < samples(0); i++) {
+  for (int i = 0; i < samples(0); ++i) {
     
     beta = betablockpost(x, z, y, clust, psiv, Rz, mb, Rb);
     betasave.row(i) = beta.t();
     
-    for (int j = 0; j < n; j++) {
+    for (int j = 0; j < n; ++j) {
       low = indx(j, 0);
       upp = indx(j, 1);
       zeta.row(j) = betapost(z.rows(low, upp), y(arma::span(low, upp)) - x.rows(low, upp) * beta, psiv, mz, Rz).t();
@@ -69,7 +69,7 @@ List lmerperm(arma::mat x, arma::mat z, arma::vec y, arma::vec clust, arma::vec 
     phivsave.row(i) = lowertri(phiv).t(); // is this correct?
     Rz = inv(phiv);
 
-    for (int k = 1; k < (b + 1); k++) {
+    for (int k = 1; k < (b + 1); ++k) {
       bndx = find(block == k);
       y(bndx) = normperm(samples(1), y(bndx), x.rows(bndx) * beta + zvec(bndx), sqrt(psiv));
     }

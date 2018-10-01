@@ -10,7 +10,7 @@ arma::vec bernperm(int samples, arma::vec y, arma::vec p) {
   int n = y.n_elem;
   double lr;
   arma::ivec u(2);  
-  for (int i = 0; i < samples; i++) {
+  for (int i = 0; i < samples; ++i) {
     do {
       u = randint(2, 0, n - 1);  
     } while (u(0) == u(1));
@@ -28,7 +28,7 @@ arma::vec poisperm(int samples, arma::vec y, arma::vec lambda) {
   int n = y.n_elem;
   double lr;
   arma::ivec u(2);
-  for (int i = 0; i < samples; i++) {
+  for (int i = 0; i < samples; ++i) {
     do {
       u = randint(2, 0, n - 1);  
     } while (u(0) == u(1));
@@ -46,7 +46,7 @@ arma::vec normperm(int samples, arma::vec y, arma::vec mu, double sigm) {
   int n = y.n_elem;
   double lr;
   arma::ivec u(2);  
-  for (int i = 0; i < samples; i++) {
+  for (int i = 0; i < samples; ++i) {
     do {
       u = randint(2, 0, n - 1);  
     } while (u(0) == u(1));

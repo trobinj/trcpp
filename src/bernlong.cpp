@@ -32,7 +32,7 @@ List bernlong(arma::vec y, arma::mat x, arma::vec z, int m, arma::vec block, int
   double betamove = 0;
   double zetamove = 0;
   
-  for (int i = 1; i < samples; i++) {
+  for (int i = 1; i < samples; ++i) {
     
     beta = betalogrpost(x, y, zoff, beta, arma::zeros(p), betaprior, betadelt);
     betasave.row(i) = beta.t();
@@ -40,7 +40,7 @@ List bernlong(arma::vec y, arma::mat x, arma::vec z, int m, arma::vec block, int
       betamove++;    
     }
     
-    for (int j = 0; j < n; j++) {
+    for (int j = 0; j < n; ++j) {
       low = m * j;
       upp = low + m - 1;
       zetatemp = betalogrpost(z.rows(low,upp), y(arma::span(low, upp)), x.rows(low,upp) * beta, 
@@ -60,7 +60,7 @@ List bernlong(arma::vec y, arma::mat x, arma::vec z, int m, arma::vec block, int
     }
     phivsave.row(i) = lowertri(phiv).t();
     
-    for (int k = 1; k < (b + 1); k++) {
+    for (int k = 1; k < (b + 1); ++k) {
       indx = find(block == k);
       y(indx) = bernrjct(invlogit(x.rows(indx) * beta + zoff(indx)), sum(y(indx)));
     }

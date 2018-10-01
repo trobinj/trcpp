@@ -10,7 +10,7 @@ const double logpi = log(M_PI);
 // simple rejection sampler, depending on the point of truncation.
 double rnormtail(double a, double m, double s, bool pos) {
   double l, u, v, z;
-  l = pos ? (a-m)/s : (a-m)/s;
+  l = pos ? (a-m)/s : (m-a)/s;
   if (l > 0) {
     do {
       u = R::runif(0.0, 1.0);
@@ -24,6 +24,7 @@ double rnormtail(double a, double m, double s, bool pos) {
   }
   return pos ? z * s + m : -z * s + m;
 }
+// Note: Not sure if this sampler is any more efficient than rnormpos.
 
 // Sampler for a truncated positive (or negative) normal random variable using a
 // rejection sampling algorithm proposed by Robert (1995, Statistics and Computing).
@@ -69,7 +70,7 @@ int rdiscrete(arma::vec wght) {
   arma::vec prob = wght / accu(wght);
   double u = R::runif(0.0, 1.0);
   double cprb = 0.0;
-  for (int y = 0; y < (n - 1); y++) {
+  for (int y = 0; y < (n - 1); ++y) {
     cprb = cprb + prob(y);
     if (u < cprb) {
       return y;
@@ -135,7 +136,7 @@ double dmvt(arma::vec y, arma::vec m, arma::mat s, double v, bool logd) {
 // Multivariate gamma function Gamma_p(a).
 double mvgamma(int p, double a, bool logd) {
   double y = 0.0;
-  for (int j = 0; j < p; j++) {
+  for (int j = 0; j < p; ++j) {
     y = y + lgamma(a - j / 2.0);
   }
   y = y + logpi * p * (p - 1) / 4.0;
@@ -170,7 +171,7 @@ arma::mat rwishart(int df, arma::mat S) {
   arma::vec z(d);
   arma::mat y(d, d, arma::fill::zeros);
   arma::mat C(d, d); C = arma::chol(S, "lower");
-  for (int i = 0; i < df; i++) {
+  for (int i = 0; i < df; ++i) {
     z = mvrnorm(arma::zeros(d), C, true);
     y = y + z * z.t();
   }

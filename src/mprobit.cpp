@@ -13,7 +13,7 @@ using namespace Rcpp;
 arma::mat cdistb(arma::mat s) {
   int n = s.n_cols;
   arma::mat y(n, n - 1);
-  for (int j = 0; j < n; j++) {
+  for (int j = 0; j < n; ++j) {
     arma::mat s22 = s;
     s22.shed_row(j);
     s22.shed_col(j);
@@ -40,7 +40,7 @@ double cdistm(arma::vec m, arma::mat b, arma::vec x, int j) {
 arma::vec cdists(arma::mat s) {
   int n = s.n_cols;
   arma::vec y(n);
-  for (int j = 0; j < n; j++) {
+  for (int j = 0; j < n; ++j) {
     arma::mat s22 = s;
     s22.shed_row(j);
     s22.shed_col(j);
@@ -84,7 +84,7 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy) {
   arma::vec sj;
   arma::mat bj(m, m - 1);
 
-  for (int k = 0; k < samples; k++) {
+  for (int k = 0; k < samples; ++k) {
 
     if ((k + 1) % 1000 == 0) {
       Rcpp::Rcout << "Sample: " << k + 1 << "\n";
@@ -95,9 +95,9 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy) {
     C = arma::chol(R, "lower");
     sj = sqrt(cdists(R));
     bj = cdistb(R);
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; ++i) {
       if (std::isnan(d(i))) {
-        for (int j = 0; j < m; j++) {
+        for (int j = 0; j < m; ++j) {
           mj = cdistm(vectorise(M.row(i)), bj, vectorise(Z.row(i)), j);
           if (std::isnan(Y(i, j))) {
             Z(i, j) = R::rnorm(mj, sj(j));
@@ -110,7 +110,7 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy) {
         mi = vectorise(M.row(i));
         do {
           Z.row(i) = mvrnorm(mi, C, true).t();
-          for (int j = 0; j < m; j++) {
+          for (int j = 0; j < m; ++j) {
             Y(i, j) = Z(i, j) > 0 ? 1 : 0;
           }
         } while (std::min(static_cast<int>(accu(Y.row(i))), maxy) != d(i));
@@ -119,7 +119,7 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy) {
 
     // Sample variances and covariances.
     r = diagvec(inv(R));
-    for (int j = 0; j < m; j++) {
+    for (int j = 0; j < m; ++j) {
       D(j, j) = 1 / sqrt(R::rgamma((m + 1) / 2.0, r(j) / 2.0));
     }
     W = Z * D;

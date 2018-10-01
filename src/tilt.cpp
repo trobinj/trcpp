@@ -8,8 +8,8 @@ arma::vec multscor(arma::mat prb, arma::vec t, arma::vec s) {
   int m = prb.n_cols;
   arma::vec y(m, arma::fill::zeros);
   arma::vec temp(m);
-  for (int j = 0; j < m; j++) {
-    for (int i = 0; i < n; i++) {
+  for (int j = 0; j < m; ++j) {
+    for (int i = 0; i < n; ++i) {
       y(j) = y(j) + prb(i,j) * exp(t(j)) / as_scalar(prb.row(i) * exp(t));
     }
   }
@@ -20,7 +20,7 @@ arma::mat multjcbn(arma::mat prb, arma::vec t, arma::vec s) {
   int m = prb.n_cols;
   arma::mat J(m, m);
   arma::vec d(m, arma::fill::zeros);
-  for (int j = 0; j < m; j++) {
+  for (int j = 0; j < m; ++j) {
     d(j) = 0.0001;
     J.col(j) = (multscor(prb, t + d, s) - multscor(prb, t - d, s)) / (2 * d(j));
     d(j) = 0.0;
@@ -32,7 +32,7 @@ arma::mat multjcbn(arma::mat prb, arma::vec t, arma::vec s) {
 arma::vec multroot(arma::mat prb, arma::vec s) {
   int m = prb.n_cols;
   arma::vec y(m, arma::fill::zeros);
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 10; ++i) {
     y.tail(m-1) = y.tail(m-1) - inv(multjcbn(prb, y, s).submat(1, 1, m-1, m-1)) * multscor(prb, y, s).tail(m-1);
   }
   return y;
@@ -46,16 +46,16 @@ arma::mat multrjct(arma::mat prb, arma::vec s) {
   arma::vec num(m);
   double den;
   arma::vec t = multroot(prb, s);
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; ++i) {
     num = prb.row(i).t() % exp(t);
     den = accu(num);
-    for (int j = 0; j < m; j++) {
+    for (int j = 0; j < m; ++j) {
       prb(i, j) = num(j) / den;
     }
   }
   do {
     y.fill(0);
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; ++i) {
       y(i, rdiscrete(prb.row(i).t())) = 1; // note: maybe transpose prb first to speed this up
     }
   } while (any(sum(y, 0).t() != s));
@@ -65,7 +65,7 @@ arma::mat multrjct(arma::mat prb, arma::vec s) {
 double bernscor(arma::vec prb, double t, int s) {
   int n = prb.n_elem;
   double y = 0.0;
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; ++i) {
     y = y + prb(i) * exp(t) / (prb(i) * exp(t) + 1 - prb(i));
   }
   return s - y;
@@ -73,7 +73,7 @@ double bernscor(arma::vec prb, double t, int s) {
 
 double bernroot(arma::vec prb, int s, double a, double b, int n) {
   double fa, fb, c = 0.0;
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; ++i) {
     fb = bernscor(prb, b, s);
     fa = bernscor(prb, a, s);
     if (fb == fa) {
@@ -91,11 +91,11 @@ arma::vec bernrjct(arma::vec prb, int s) {
   arma::vec y(n);
   arma::vec p(n);
   double t = bernroot(prb, s, -1.0, 1.0, 10);
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; ++i) {
     p(i) = prb(i) * exp(t) / (prb(i) * exp(t) + 1 - prb(i));
   }
   do {
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; ++i) {
       y(i) = R::rbinom(1, p(i));
     }
   } while (accu(y) != s);

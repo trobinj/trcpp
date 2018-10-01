@@ -17,8 +17,8 @@ void vswap(arma::ivec & x, int a, int b) {
 arma::vec repeat(arma::vec x, int n) {
   int m = x.n_elem;
   arma::vec y(m * n);
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < m; j++) {
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < m; ++j) {
       y(i * m + j) = x(j);
     }
   }
@@ -29,8 +29,8 @@ arma::vec repeat(arma::vec x, arma::vec n) {
   arma::vec y(accu(n));
   int m = x.n_elem;
   int t = 0;
-  for (int i = 0; i < m; i++) {
-    for (int j = 0; j < n(i); j++) {
+  for (int i = 0; i < m; ++i) {
+    for (int j = 0; j < n(i); ++j) {
       y(t) = x(i);
       t++;
     }
@@ -47,8 +47,8 @@ arma::vec lowertri(arma::mat x) {
   }
   arma::vec y(d);
   int t = 0;
-  for (int j = 0; j < std::min(n,m); j++) {
-    for (int i = j; i < n; i++) {
+  for (int j = 0; j < std::min(n,m); ++j) {
+    for (int i = j; i < n; ++i) {
       y(t) = x(i,j);
       t++;
     }
@@ -60,10 +60,10 @@ arma::mat vec2symm(arma::vec x) {
   int n = (sqrt(8 * x.n_elem + 1) - 1)/2;
   int t = 0;
   arma::mat y(n, n);
-  for (int j = 0; j < n; j++) {
-    for (int i = j; i < n; i++) {
+  for (int j = 0; j < n; ++j) {
+    for (int i = j; i < n; ++i) {
       y(i,j) = x(t);
-      t++;
+      ++t;
     }
   }
   return symmatl(y);
@@ -72,7 +72,7 @@ arma::mat vec2symm(arma::vec x) {
 arma::vec invlogit(arma::vec x) {
   int n = x.n_elem;
   arma::vec p(n);
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; ++i) {
     p(i) = R::plogis(x(i), 0.0, 1.0, true, false);
   }
   return p;
@@ -86,11 +86,11 @@ arma::umat indexmat(arma::vec x) {
   int i = 0;
   y(i, 0) = 0;
   y(y.n_rows - 1, 1) = n - 1;
-  for (int t = 1; t < n; t++) {
+  for (int t = 1; t < n; ++t) {
     if (x(t) != x(t - 1)) {
       y(i, 1) = t - 1;
       y(i + 1, 0) = t;
-      i++;
+      ++i;
     }
   }
   return y;

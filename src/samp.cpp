@@ -8,9 +8,9 @@ arma::vec rnormsum(arma::vec mu, arma::vec sigma, double t, int n, double delta,
   int m = mu.n_elem;
   double z, num, den, s, a = 0.0;
   arma::vec y(m, arma::fill::zeros);
-  for (int i = 1; i < n; i++) {
+  for (int i = 1; i < n; ++i) {
     s = accu(y.head(m - 1));
-    for (int j = 0; j < (m - 1); j++) {
+    for (int j = 0; j < (m - 1); ++j) {
       z = R::rnorm(y(j), delta);
       num = R::dnorm(t - (s - y(j) + z), mu(m - 1), sigma(m - 1), true) + R::dnorm(z, mu(j), sigma(j), true);
       den = R::dnorm(t - s, mu(m - 1), sigma(m - 1), true) + R::dnorm(y(j), mu(j), sigma(j), true);

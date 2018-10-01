@@ -29,32 +29,30 @@ List raschic(arma::mat Y, arma::mat X, arma::mat Z, arma::vec d, int samples, in
   arma::vec mb(p, arma::fill::zeros);   // beta prior (location)
   arma::mat Rb(p, p, arma::fill::eye);  // beta prior (precision)
 
-  for (int k = 0; k < samples; k++) {
+  for (int k = 0; k < samples; ++k) {
 
     if ((k + 1) % 1000 == 0) {
       Rcout << "Sample: " << k + 1 << "\n";
     }
 
     // sample latent responses
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; ++i) {
+      lw = i * m;
+      up = i * m + m - 1;
+      mi = X.rows(lw, up) * beta + Z.rows(lw, up) * zeta.row(i).t();
       if (std::isnan(d(i))) {
-        for (int j = 0; j < m; j++) {
+        for (int j = 0; j < m; ++j) {
           if (std::isnan(Y(i,j))) {
-            u(i * m + j) = R::rnorm(as_scalar(X.row(i * m + j) * beta +
-              Z.row(i * m + j) * zeta.row(i).t()), 1.0);
+            u(i * m + j) = R::rnorm(mi(j), 1.0);
           } else {
-            u(i * m + j) = rnormmar(as_scalar(X.row(i * m + j) * beta +
-              Z.row(i * m + j) * zeta.row(i).t()), 1.0, Y(i,j) == 1);
+            u(i * m + j) = rnormpos(mi(j), 1.0, Y(i,j) == 1);
           }
         }
       }
       else {
-        lw = i * m;
-        up = i * m + m - 1;
-        mi = X.rows(lw, up) * beta + Z.rows(lw, up) * zeta.row(i).t();
         do {
           u.subvec(lw, up) = arma::randn(m) + mi;
-          for (int j = 0; j < m; j++) {
+          for (int j = 0; j < m; ++j) {
             Y(i,j) = u(lw + j) > 0 ? 1 : 0;
           }
         } while (std::min(static_cast<int>(accu(Y.row(i))), maxy) != d(i));
@@ -70,7 +68,7 @@ List raschic(arma::mat Y, arma::mat X, arma::mat Z, arma::vec d, int samples, in
       lw = i * m;
       up = i * m + m - 1;
       zeta.row(i) = betapost(Z.rows(lw,up), u.subvec(lw,up) -
-        X.rows(lw,up) * beta, 1.0, arma::zeros(1), inv(phiv)).t();
+        X.rows(lw,up) * beta, 1.0, arma::zeros(q), inv(phiv)).t();
     }
 
     // sample (co)variance of latent variable(s)

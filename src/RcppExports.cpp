@@ -75,14 +75,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // mprobit
-List mprobit(arma::imat Y, arma::mat X, arma::ivec d, int samples, int maxy);
+List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy);
 RcppExport SEXP _trcpp_mprobit(SEXP YSEXP, SEXP XSEXP, SEXP dSEXP, SEXP samplesSEXP, SEXP maxySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::imat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::ivec >::type d(dSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type d(dSEXP);
     Rcpp::traits::input_parameter< int >::type samples(samplesSEXP);
     Rcpp::traits::input_parameter< int >::type maxy(maxySEXP);
     rcpp_result_gen = Rcpp::wrap(mprobit(Y, X, d, samples, maxy));
