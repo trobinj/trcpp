@@ -26,13 +26,8 @@ arma::mat cdistb(arma::mat s) {
 
 // Function to compute conditional mean.
 double cdistm(arma::vec m, arma::mat b, arma::vec x, int j) {
-  int n = m.n_elem;
-  arma::mat m2(n, 1);
-  m2.col(0) = m;
-  m2.shed_row(j);
-  arma::mat x2(n, 1);
-  x2.col(0) = x;
-  x2.shed_row(j);
+  arma::mat m2(m); m2.shed_row(j);
+  arma::mat x2(x); x2.shed_row(j);
   return m(j) + as_scalar(b.row(j) * (x2 - m2));
 }
 

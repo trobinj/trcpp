@@ -69,8 +69,20 @@ arma::mat covmpost(arma::mat y, arma::vec mu, int df, arma::mat scale) {
   int m = y.n_cols;
   arma::mat v(m, m, arma::fill::zeros);
   arma::vec z(m);
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; ++i) {
     z = y.row(i).t() - mu;
+    v = v + z * z.t();
+  }
+  return inv(rwishart(n + df, inv(inv(scale) + v)));
+}
+
+arma::mat covmpost(arma::mat y, int df, arma::mat scale) {
+  int n = y.n_rows;
+  int m = y.n_cols;
+  arma::mat v(m, m, arma::fill::zeros);
+  arma::vec z(m);
+  for (int i = 0; i < n; ++i) {
+    z = y.row(i).t();
     v = v + z * z.t();
   }
   return inv(rwishart(n + df, inv(inv(scale) + v)));
@@ -101,9 +113,8 @@ arma::vec betapost(arma::mat x, arma::mat z, arma::vec y, int m,
   arma::vec yi(m);
   arma::mat B(p,p);
   arma::vec b(p);
-  for (int i = 0; i < n; i++) {
-    lw = i*m;
-    up = i*m+m-1;
+  for (int i = 0; i < n; ++i) {
+    lw = i * m; up = lw + m - 1;
     xi = x.rows(lw,up);
     zi = z.rows(lw,up);
     yi = y.subvec(lw,up);
@@ -133,7 +144,7 @@ arma::vec betablockpost(arma::mat x, arma::mat z, arma::vec y, arma::vec clust,
   unsigned int low, upp;
   int m;
 
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; ++i) {
 
     low = indx(i, 0);
     upp = indx(i, 1);

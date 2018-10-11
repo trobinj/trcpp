@@ -24,14 +24,13 @@ double rnormtail(double a, double m, double s, bool pos) {
   }
   return pos ? z * s + m : -z * s + m;
 }
-// Note: Not sure if this sampler is any more efficient than rnormpos.
 
-// Sampler for a truncated positive (or negative) normal random variable using a
-// rejection sampling algorithm proposed by Robert (1995, Statistics and Computing).
+// Sampler for a truncated positive (or negative) normal random variable using
+// a rejection sampling algorithm from Robert (1995, Statistics and Computing).
 double rnormpos(double m, double s, bool pos) {
   double l, a, z, p, u;
   l = pos ? -m/s : m/s;
-  a = (l + sqrt(pow(l, 2) + 4.0)) / 2.0;
+  a = (l + sqrt(pow(l,2) + 4.0)) / 2.0;
   do {
     z = R::rexp(1.0) / a + l;
     p = exp(-pow(z - a, 2) / 2.0);
@@ -39,7 +38,6 @@ double rnormpos(double m, double s, bool pos) {
   } while(u > p);
   return pos ? z * s + m : -z * s + m;
 }
-// Note: Make this more efficient by using a simpler approach for when l < 0.
 
 // Naive rejection sampler for truncated normal distribution.
 double rtnorm(double mu, double sigma, double a, double b) {
@@ -54,7 +52,7 @@ double rtnorm(double mu, double sigma, double a, double b) {
 arma::ivec randint(int n, int a, int b) {
   arma::ivec y(n);
   int c = b - a + 1;
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; ++i) {
     y(i) = floor(R::runif(0.0, 1.0) * c) + a;
   }
   return y;
@@ -87,10 +85,10 @@ double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd) {
   arma::vec z(d);
   z = chol(inv(sigma)) * (y - mu);
   logl = as_scalar(-(lds + z.t() * z + d * log2pi) / 2);
-  if (logd == false) {
-    return exp(logl);
+  if (logd) {
+    return logl;
   }
-  return logl;
+  return exp(logl);
 }
 
 // Sampler for multivariate normal distribution.
@@ -99,9 +97,7 @@ arma::vec mvrnorm(arma::vec mu, arma::mat sigma, bool cholesky) {
   if (cholesky) {
     return mu + sigma * arma::randn(p);
   }
-  else {
-    return mu + arma::chol(sigma, "lower") * arma::randn(p);
-  }
+  return mu + arma::chol(sigma, "lower") * arma::randn(p);
 }
 
 // Sampler for matrix-variate normal distribution.
@@ -128,9 +124,7 @@ double dmvt(arma::vec y, arma::vec m, arma::mat s, double v, bool logd) {
   if (logd) {
     return t1 - t2 + t3;
   }
-  else {
-    return exp(t1 - t2 + t3);
-  }
+  return exp(t1 - t2 + t3);
 }
 
 // Multivariate gamma function Gamma_p(a).
@@ -143,9 +137,7 @@ double mvgamma(int p, double a, bool logd) {
   if (logd) {
     return y;
   }
-  else {
-    return exp(y);
-  }
+  return exp(y);
 }
 
 // Probability density function of Wishart distribution.
@@ -160,9 +152,7 @@ double dwishart(arma::mat x, double n, arma::mat v, bool logd) {
   if (logd) {
     return y;
   }
-  else {
-    return exp(y);
-  }
+  return exp(y);
 }
 
 // Sampler for Wishart distribution.

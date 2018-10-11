@@ -69,6 +69,10 @@ arma::mat vec2symm(arma::vec x) {
   return symmatl(y);
 }
 
+double invlogit(double x) {
+  return R::plogis(x, 0.0, 1.0, true, false);
+}
+
 arma::vec invlogit(arma::vec x) {
   int n = x.n_elem;
   arma::vec p(n);

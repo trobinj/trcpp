@@ -5,6 +5,8 @@
 
 using namespace Rcpp;
 
+// To do: Add prior specification as function arguments.
+
 //' @export
 // [[Rcpp::export]]
 List raschic(arma::mat Y, arma::mat X, arma::mat Z, arma::vec d, int samples, int maxy) {
@@ -37,8 +39,7 @@ List raschic(arma::mat Y, arma::mat X, arma::mat Z, arma::vec d, int samples, in
 
     // sample latent responses
     for (int i = 0; i < n; ++i) {
-      lw = i * m;
-      up = i * m + m - 1;
+      lw = i * m; up = lw + m - 1;
       mi = X.rows(lw, up) * beta + Z.rows(lw, up) * zeta.row(i).t();
       if (std::isnan(d(i))) {
         for (int j = 0; j < m; ++j) {
@@ -65,17 +66,16 @@ List raschic(arma::mat Y, arma::mat X, arma::mat Z, arma::vec d, int samples, in
 
     // sample respondent-specific parameters
     for (int i = 0; i < n; ++i) {
-      lw = i * m;
-      up = i * m + m - 1;
+      lw = i * m; up = lw + m - 1;
       zeta.row(i) = betapost(Z.rows(lw,up), u.subvec(lw,up) -
         X.rows(lw,up) * beta, 1.0, arma::zeros(q), inv(phiv)).t();
     }
 
     // sample (co)variance of latent variable(s)
     if (q == 1) {
-      phiv(0,0) = sigmpost(vectorise(zeta), 0.0, 1.0, 1.0);
+      phiv(0,0) = sigmpost(vectorise(zeta), 0.0, 10.0/2, 10.0/2); // note prior specification
     } else {
-      Rcout << "not yet implemented" << "\n";
+      phiv = covmpost(zeta, 10, arma::eye(q,q)/10); // note prior specification
     }
     vsave.row(k) = lowertri(phiv).t();
   }

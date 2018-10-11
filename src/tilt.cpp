@@ -1,4 +1,5 @@
-// Functions for tilted rejection sampling.
+// Functions for tilted rejection sampling algorithm for sampling from several independent
+// multinomial or Bernoulli (as a special case) random variables conditional on a given sum. 
 
 #include <RcppArmadillo.h>
 #include "dist.h" // for rdiscrete
@@ -21,7 +22,7 @@ arma::mat multjcbn(arma::mat prb, arma::vec t, arma::vec s) {
   arma::mat J(m, m);
   arma::vec d(m, arma::fill::zeros);
   for (int j = 0; j < m; ++j) {
-    d(j) = 0.0001;
+    d(j) = 0.0001; // somewhat arbitrary choice here (make an argument with default)
     J.col(j) = (multscor(prb, t + d, s) - multscor(prb, t - d, s)) / (2 * d(j));
     d(j) = 0.0;
   }

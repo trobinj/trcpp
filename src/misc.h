@@ -11,6 +11,7 @@ arma::vec repeat(arma::vec x, int n);
 arma::vec repeat(arma::vec x, arma::vec n);
 arma::vec lowertri(arma::mat x);
 arma::mat vec2symm(arma::vec x);
+double invlogit(double x);
 arma::vec invlogit(arma::vec x);
 arma::umat indexmat(arma::vec x);
 

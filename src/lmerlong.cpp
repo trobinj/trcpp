@@ -41,13 +41,13 @@ List lmerlong(arma::vec y, arma::mat x, arma::mat z, int m, arma::vec block,
     phiv.fill(0.0);  
   }
   
-  for (int i = 0; i < samples(0); i++) {
+  for (int i = 0; i < samples(0); ++i) {
     
     beta = betablockpost(x, z, y, clust, psiv, phiv, mb, Rb);
     betasave.row(i) = beta.t();
 
     if ((phivprior(0) > 0) && (phivprior(1) > 0)) {
-      for (int j = 0; j < n; j++) {
+      for (int j = 0; j < n; ++j) {
         low = m * j;
         upp = low + m - 1;
         zeta.row(j) = betapost(z.rows(low, upp), y(arma::span(low, upp)) - x.rows(low, upp) * beta, psiv, mz, Rz).t();
@@ -68,7 +68,7 @@ List lmerlong(arma::vec y, arma::mat x, arma::mat z, int m, arma::vec block,
       Rz = inv(phiv);
     }
 
-    for (int k = 1; k < (b + 1); k++) {
+    for (int k = 1; k < (b + 1); ++k) {
       indx = find(block == k);
       y(indx) = normperm(samples(1), y(indx), x.rows(indx) * beta + zoff(indx), sqrt(psiv));
     }
