@@ -1,6 +1,7 @@
 // Functions for evaluating or sampling various probability distributions.
 
 #include <RcppArmadillo.h>
+#include "misc.h"
 
 const double log2pi = log(2.0 * M_PI);
 const double logpi = log(M_PI);
@@ -58,6 +59,7 @@ arma::ivec randint(int n, int a, int b) {
   return y;
 }
 
+// Sampler for an integer in [a,b].
 int randint(int a, int b) {
   return floor(R::runif(0.0, 1.0) * (b - a + 1)) + a;
 }
@@ -77,18 +79,37 @@ int rdiscrete(arma::vec wght) {
   return n - 1;
 }
 
+// Fisher-Yates random shuffle algorithm for vec class. (Just
+// for illustration, as Armadillo includes a shuffle function).
+void shuffle(arma::vec & x) {
+  int j;
+  int n = x.n_elem;
+  for (int i = 0; i < (n - 1); ++i) {
+    j = randint(i, n - 1);
+    vswap(x, i, j);
+  }
+}
+
+// Simple random sampling using the Fisher-Yates shuffle algorithm.
+arma::vec srs(arma::vec x, int n) {
+   int j;
+   int l = x.n_elem;
+   for (int i = 0; i < n; ++i) {
+      j = randint(i, l - 1);
+      vswap(x, i, j);
+   }
+   return x.head(n);
+}
+
 // Probability density function of a multivariate normal distribution.
 double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd) {
   int d = y.n_elem;
-  double logl, lds, sign;
+  double lnll, lds, sign;
   log_det(lds, sign, sigma);
   arma::vec z(d);
   z = chol(inv(sigma)) * (y - mu);
-  logl = as_scalar(-(lds + z.t() * z + d * log2pi) / 2);
-  if (logd) {
-    return logl;
-  }
-  return exp(logl);
+  lnll = as_scalar(-(lds + z.t() * z + d * log2pi) / 2);
+  return logd ? lnll : exp(lnll);
 }
 
 // Sampler for multivariate normal distribution.
@@ -121,10 +142,7 @@ double dmvt(arma::vec y, arma::vec m, arma::mat s, double v, bool logd) {
   t1 = lgamma((v + p) / 2.0);
   t2 = lgamma(v / 2.0) + p * log(v) / 2.0 + p * logpi / 2.0 + lds / 2.0;
   t3 = -(v + p) / 2.0 * log(1.0 + as_scalar((y - m).t() * inv(s) * (y - m)) / v);
-  if (logd) {
-    return t1 - t2 + t3;
-  }
-  return exp(t1 - t2 + t3);
+  return logd ? t1 - t2 + t3 : exp(t1 - t2 + t3);
 }
 
 // Multivariate gamma function Gamma_p(a).
@@ -134,10 +152,7 @@ double mvgamma(int p, double a, bool logd) {
     y = y + lgamma(a - j / 2.0);
   }
   y = y + logpi * p * (p - 1) / 4.0;
-  if (logd) {
-    return y;
-  }
-  return exp(y);
+  return logd ? y : exp(y);
 }
 
 // Probability density function of Wishart distribution.
@@ -149,10 +164,7 @@ double dwishart(arma::mat x, double n, arma::mat v, bool logd) {
   y = (n - p - 1) / 2.0 * logdx - trace(inv(v) * x) / 2.0
     - (n * p / 2.0 * log(2.0) + n / 2.0 * logdv
     + mvgamma(p, n / 2.0, true));
-  if (logd) {
-    return y;
-  }
-  return exp(y);
+  return logd ? y : exp(y);
 }
 
 // Sampler for Wishart distribution.

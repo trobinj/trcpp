@@ -1,6 +1,11 @@
 // Miscellaneous utility functions.
 
 #include <RcppArmadillo.h>
+#include <string>
+
+void mssg(std::string x) {
+  Rcpp::Rcout << x << "\n";
+}
 
 void vswap(arma::vec & x, int a, int b) {
   double y = x(a);
@@ -38,7 +43,8 @@ arma::vec repeat(arma::vec x, arma::vec n) {
   return y;
 }
 
-arma::vec lowertri(arma::mat x) {
+arma::vec lowertri(arma::mat x, bool diag) {
+  if (!diag) x.shed_row(0);
   int n = x.n_rows;
   int m = x.n_cols;
   int d = std::min(n,m) * (std::min(n,m) + 1) / 2;
@@ -50,7 +56,7 @@ arma::vec lowertri(arma::mat x) {
   for (int j = 0; j < std::min(n,m); ++j) {
     for (int i = j; i < n; ++i) {
       y(t) = x(i,j);
-      t++;
+      ++t;
     }
   }
   return y;
@@ -83,7 +89,7 @@ arma::vec invlogit(arma::vec x) {
 }
 
 arma::umat indexmat(arma::vec x) {
-  if (!x.is_sorted()) Rcpp::Rcout << "warning: unsorted vector in indexmat";
+  if (!x.is_sorted()) Rcpp::Rcout << "warning: unsorted vector in indexmat" << "\n";
   arma::vec u = unique(x);
   arma::umat y(u.n_elem, 2);
   int n = x.n_elem;

@@ -8,6 +8,8 @@
 arma::ivec randint(int n, int a, int b);
 int randint(int a, int b);
 int rdiscrete(arma::vec wght);
+void shuffle(arma::vec & x);
+arma::vec srs(arma::vec x, int n);
 
 double rtnorm(double mu, double sigma, double a, double b);
 double rnormpos(double m, double s, bool pos);

@@ -1,23 +1,18 @@
 // Functions for testing purposes only.
 
 #include <RcppArmadillo.h>
-#include "dist.h"
-
-using namespace Rcpp;
+#include "gslf.h"
 
 //' @export
 // [[Rcpp::export]]
-void foo(int n, arma::vec mu, arma::mat sigma, bool lib) {
-  arma::mat c(size(sigma));
-  c = arma::chol(sigma);
-  arma::vec y(size(mu));
-  if (lib) {
-    for (int i = 0; i < n; ++i) {
-      y = mvrnorm(mu, c, TRUE);
-    }
-  } else {
-    for (int i = 0; i < n; ++i) {
-      y = arma::mvnrnd(mu, sigma); // slightly faster
-    }
+arma::mat foo(int n) {
+  arma::mat y(n,2);
+  arma::vec node(n);
+  arma::vec wght(n);
+  ghquad(n, node, wght);
+  for (int i = 0; i < n; ++i) {
+    y(i,0) = node(i);
+    y(i,1) = wght(i);
   }
+  return y;
 }

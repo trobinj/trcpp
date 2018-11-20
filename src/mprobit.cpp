@@ -9,7 +9,7 @@
 
 using namespace Rcpp;
 
-// Function to compute condition "regression coefficients".
+// Function to compute conditional "regression coefficients".
 arma::mat cdistb(arma::mat s) {
   int n = s.n_cols;
   arma::mat y(n, n - 1);
@@ -47,6 +47,14 @@ arma::vec cdists(arma::mat s) {
   return y;
 }
 
+bool reject(arma::vec y, int d, int miny, int maxy) {
+  int sum = static_cast<int>(accu(y));
+  if (std::min(sum, maxy) != d && std::max(sum, miny) != d) {
+    return true;
+  }
+  return false;
+ }
+
 //' @export
 // [[Rcpp::export]]
 List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy) {
@@ -72,7 +80,7 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy) {
   T = inv(X.t() * X + inv(arma::eye(p,p))); // note prior specification here
 
   arma::mat Bsave(samples, p * m, arma::fill::zeros);
-  arma::mat Rsave(samples, m * (m + 1) / 2);
+  arma::mat Rsave(samples, m * (m - 1) / 2);
 
   double mj;
   arma::vec mi(m);
@@ -131,7 +139,7 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy) {
 
     // Save sampled parameters.
     Bsave.row(k) = vectorise(B).t();
-    Rsave.row(k) = lowertri(R).t();
+    Rsave.row(k) = lowertri(R, false).t();
   }
 
   return List::create(

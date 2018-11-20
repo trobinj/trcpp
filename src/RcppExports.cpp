@@ -2,6 +2,7 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <RcppArmadillo.h>
+#include <RcppGSL.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
@@ -27,16 +28,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // foo
-void foo(int n, arma::vec mu, arma::mat sigma, bool lib);
-RcppExport SEXP _trcpp_foo(SEXP nSEXP, SEXP muSEXP, SEXP sigmaSEXP, SEXP libSEXP) {
+arma::mat foo(int n);
+RcppExport SEXP _trcpp_foo(SEXP nSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< bool >::type lib(libSEXP);
-    foo(n, mu, sigma, lib);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(foo(n));
+    return rcpp_result_gen;
 END_RCPP
 }
 // lmerlong
@@ -127,7 +126,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
-    {"_trcpp_foo", (DL_FUNC) &_trcpp_foo, 4},
+    {"_trcpp_foo", (DL_FUNC) &_trcpp_foo, 1},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
     {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 5},
