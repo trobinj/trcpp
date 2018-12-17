@@ -2,7 +2,6 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <RcppArmadillo.h>
-#include <RcppGSL.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
@@ -28,14 +27,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // foo
-arma::mat foo(int n);
-RcppExport SEXP _trcpp_foo(SEXP nSEXP) {
+void foo(arma::uvec x);
+RcppExport SEXP _trcpp_foo(SEXP xSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(foo(n));
-    return rcpp_result_gen;
+    Rcpp::traits::input_parameter< arma::uvec >::type x(xSEXP);
+    foo(x);
+    return R_NilValue;
 END_RCPP
 }
 // lmerlong

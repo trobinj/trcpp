@@ -11,7 +11,7 @@ const double logpi = log(M_PI);
 // simple rejection sampler, depending on the point of truncation.
 double rnormtail(double a, double m, double s, bool pos) {
   double l, u, v, z;
-  l = pos ? (a-m)/s : (m-a)/s;
+  l = pos ? (a - m)/s : (m - a)/s;
   if (l > 0) {
     do {
       u = R::runif(0.0, 1.0);
@@ -40,7 +40,7 @@ double rnormpos(double m, double s, bool pos) {
   return pos ? z * s + m : -z * s + m;
 }
 
-// Naive rejection sampler for truncated normal distribution.
+// Simple rejection sampler for truncated normal distribution.
 double rtnorm(double mu, double sigma, double a, double b) {
   double y;
   do {
@@ -92,13 +92,13 @@ void shuffle(arma::vec & x) {
 
 // Simple random sampling using the Fisher-Yates shuffle algorithm.
 arma::vec srs(arma::vec x, int n) {
-   int j;
-   int l = x.n_elem;
-   for (int i = 0; i < n; ++i) {
-      j = randint(i, l - 1);
-      vswap(x, i, j);
-   }
-   return x.head(n);
+  int j;
+  int l = x.n_elem;
+  for (int i = 0; i < n; ++i) {
+    j = randint(i, l - 1);
+    vswap(x, i, j);
+  }
+  return x.head(n);
 }
 
 // Probability density function of a multivariate normal distribution.
@@ -172,7 +172,7 @@ arma::mat rwishart(int df, arma::mat S) {
   int d = S.n_rows;
   arma::vec z(d);
   arma::mat y(d, d, arma::fill::zeros);
-  arma::mat C(d, d); C = arma::chol(S, "lower");
+  arma::mat C = arma::chol(S, "lower");
   for (int i = 0; i < df; ++i) {
     z = mvrnorm(arma::zeros(d), C, true);
     y = y + z * z.t();

@@ -16,7 +16,6 @@ double rnormpos(double m, double s, bool pos);
 double rnormtail(double a, double m, double s, bool pos);
 
 double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd);
-
 arma::vec mvrnorm(arma::vec mu, arma::mat sigma, bool cholesky = false);
 arma::mat mvrnorm(arma::mat m, arma::mat u, arma::mat v);
 

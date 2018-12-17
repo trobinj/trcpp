@@ -1,5 +1,5 @@
-// Functions for tilted rejection sampling algorithm for sampling from several independent
-// multinomial or Bernoulli (as a special case) random variables conditional on a given sum. 
+// Functions for tilted rejection sampling algorithms for sampling from several independent
+// multinomial or Bernoulli random variables conditional on given marginal frequencies.
 
 #include <RcppArmadillo.h>
 #include "dist.h" // for rdiscrete
@@ -19,11 +19,12 @@ arma::vec multscor(arma::mat prb, arma::vec t, arma::vec s) {
 
 arma::mat multjcbn(arma::mat prb, arma::vec t, arma::vec s) {
   int m = prb.n_cols;
+  int delta = 1e-8;
   arma::mat J(m, m);
   arma::vec d(m, arma::fill::zeros);
   for (int j = 0; j < m; ++j) {
-    d(j) = 0.0001; // somewhat arbitrary choice here (make an argument with default)
-    J.col(j) = (multscor(prb, t + d, s) - multscor(prb, t - d, s)) / (2 * d(j));
+    d(j) = delta;
+    J.col(j) = (multscor(prb, t + d, s) - multscor(prb, t - d, s)) / (2 * delta);
     d(j) = 0.0;
   }
   return J;
@@ -57,7 +58,7 @@ arma::mat multrjct(arma::mat prb, arma::vec s) {
   do {
     y.fill(0);
     for (int i = 0; i < n; ++i) {
-      y(i, rdiscrete(prb.row(i).t())) = 1; // note: maybe transpose prb first to speed this up
+      y(i, rdiscrete(vectorise(prb.row(i)))) = 1;
     }
   } while (any(sum(y, 0).t() != s));
   return y * arma::regspace(0, m - 1);
