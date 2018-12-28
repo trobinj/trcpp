@@ -116,7 +116,7 @@ List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy) {
           for (int j = 0; j < m; ++j) {
             Y(i, j) = Z(i, j) > 0 ? 1 : 0;
           }
-        } while (std::min(static_cast<int>(accu(Y.row(i))), maxy) != d(i));
+        } while (std::min(int(accu(Y.row(i))), maxy) != d(i));
       }
     }
 

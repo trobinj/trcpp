@@ -27,13 +27,29 @@ BEGIN_RCPP
 END_RCPP
 }
 // foo
-void foo(arma::uvec x);
-RcppExport SEXP _trcpp_foo(SEXP xSEXP) {
+void foo(int n);
+RcppExport SEXP _trcpp_foo(SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::uvec >::type x(xSEXP);
-    foo(x);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    foo(n);
     return R_NilValue;
+END_RCPP
+}
+// mcmc1pl
+List mcmc1pl(arma::mat y, arma::mat x, arma::vec d, int samp, double dtune, double ztune);
+RcppExport SEXP _trcpp_mcmc1pl(SEXP ySEXP, SEXP xSEXP, SEXP dSEXP, SEXP sampSEXP, SEXP dtuneSEXP, SEXP ztuneSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type d(dSEXP);
+    Rcpp::traits::input_parameter< int >::type samp(sampSEXP);
+    Rcpp::traits::input_parameter< double >::type dtune(dtuneSEXP);
+    Rcpp::traits::input_parameter< double >::type ztune(ztuneSEXP);
+    rcpp_result_gen = Rcpp::wrap(mcmc1pl(y, x, d, samp, dtune, ztune));
+    return rcpp_result_gen;
 END_RCPP
 }
 // lmerlong
@@ -125,6 +141,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
     {"_trcpp_foo", (DL_FUNC) &_trcpp_foo, 1},
+    {"_trcpp_mcmc1pl", (DL_FUNC) &_trcpp_mcmc1pl, 6},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
     {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 5},

@@ -2,12 +2,16 @@
 
 #include <RcppArmadillo.h>
 #include "misc.h"
+#include "comb.h"
 
 using namespace Rcpp;
 
 //' @export
 // [[Rcpp::export]]
-void foo(arma::uvec x) {
-  arma::mat y = expand(x);
-  prnt(y);
+void foo(int n) {
+  arma::vec node(n);
+  arma::vec wght(n);
+  ghquad(n, node, wght);
+  prnt(node);
+  prnt(wght);
 }

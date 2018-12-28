@@ -29,20 +29,20 @@ void fill(arma::mat & y, arma::vec x) {
   }
 }
 
-arma::mat expand(arma::uvec x) {
+arma::umat expand(arma::uvec x) {
   int n = prod(x);
   int m = x.n_elem;
-  int z, s, t;
-  arma::mat y(n,m);
+  unsigned int z, s, t;
+  arma::umat y(n,m);
   for (int j = 0; j < m; ++j) {
     z = prod(x.subvec(0,j));
     s = 1;
     t = 1;
     for (int i = 0; i < n; ++i) {
-      if (s + 1 > n / z) {
-        s = 1;
+      if (s >= n/z) {
         y(i,j) = t;
-        if (t + 1 > x(j)) {
+        s = 1;
+        if (t >= x(j)) {
           t = 1;
         } else {
           ++t;
@@ -60,7 +60,7 @@ arma::uvec rankvec(arma::vec x) {
   int n = x.n_elem;
   arma::uvec q = sort_index(x);
   arma::uvec r(n);
-  for (unsigned int i = 0; i < n; ++i) {
+  for (int i = 0; i < n; ++i) {
     r(q(i)) = i + 1;
   }
   return r;
@@ -68,7 +68,7 @@ arma::uvec rankvec(arma::vec x) {
 
 arma::vec repeat(arma::vec x, int n) {
   int m = x.n_elem;
-  arma::vec y(m * n);
+  arma::vec y(m*n);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; ++j) {
       y(i * m + j) = x(j);
@@ -110,7 +110,7 @@ arma::vec lowertri(arma::mat x, bool diag) {
 }
 
 arma::mat vec2symm(arma::vec x) {
-  int n = (sqrt(8 * x.n_elem + 1) - 1)/2;
+  int n = (sqrt(8 * x.n_elem + 1) - 1) / 2;
   int t = 0;
   arma::mat y(n, n);
   for (int j = 0; j < n; ++j) {
@@ -158,7 +158,7 @@ arma::umat indexmat(arma::vec x) {
 // using the Golub-Welsch algorithm.
 void ghquad(int n, arma::vec & node, arma::vec & wght) {
   arma::mat J(n, n, arma::fill::zeros);
-  for (int i = 0; i < (n - 1); ++i) {
+  for (int i = 0; i < n - 1; ++i) {
     J(i + 1, i) = sqrt((i + 1) / 2.0);
     J(i, i + 1) = J(i + 1, i);
   }
@@ -171,6 +171,3 @@ void ghquad(int n, arma::vec & node, arma::vec & wght) {
     wght(i) = b0 * pow(eigenvec(0, i), 2) / pow(arma::norm(eigenvec.col(i)), 2);
   }
 }
-/*
- * To do: Extend the above for other kinds of Gaussian quadrature.
- */
