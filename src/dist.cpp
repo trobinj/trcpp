@@ -70,7 +70,7 @@ int rdiscrete(arma::vec wght) {
   arma::vec prob = wght / accu(wght);
   double u = R::runif(0.0, 1.0);
   double cprb = 0.0;
-  for (int y = 0; y < (n - 1); ++y) {
+  for (int y = 0; y < n - 1; ++y) {
     cprb = cprb + prob(y);
     if (u < cprb) {
       return y;
@@ -84,7 +84,7 @@ int rdiscrete(arma::vec wght) {
 void shuffle(arma::vec & x) {
   int j;
   int n = x.n_elem;
-  for (int i = 0; i < (n - 1); ++i) {
+  for (int i = 0; i < n - 1; ++i) {
     j = randint(i, n - 1);
     vswap(x, i, j);
   }
@@ -99,6 +99,10 @@ arma::vec srs(arma::vec x, int n) {
     vswap(x, i, j);
   }
   return x.head(n);
+}
+
+double srs(arma::vec x) {
+  return x(randint(0, x.n_elem - 1));
 }
 
 // Probability density function of a multivariate normal distribution.
