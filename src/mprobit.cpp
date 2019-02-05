@@ -48,7 +48,7 @@ arma::vec cdists(arma::mat s) {
 }
 
 bool reject(arma::vec y, int d, int miny, int maxy) {
-  int sum = static_cast<int>(accu(y));
+  int sum = int(accu(y));
   if (std::min(sum, maxy) != d && std::max(sum, miny) != d) {
     return true;
   }
@@ -57,7 +57,13 @@ bool reject(arma::vec y, int d, int miny, int maxy) {
 
 //' @export
 // [[Rcpp::export]]
-List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy) {
+List mprobit(List data) {
+
+  arma::mat Y = data["Y"];
+  arma::mat X = data["X"];
+  arma::vec d = data["d"];
+  int samples = data["samples"];
+  int maxy = data["maxy"];
 
   int n = Y.n_rows;
   int m = Y.n_cols;

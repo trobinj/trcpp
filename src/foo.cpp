@@ -8,10 +8,7 @@ using namespace Rcpp;
 
 //' @export
 // [[Rcpp::export]]
-void foo(int n) {
-  arma::vec node(n);
-  arma::vec wght(n);
-  ghquad(n, node, wght);
-  prnt(node);
-  prnt(wght);
+void foo(List x) {
+  arma::mat y = x["x"];
+  Rcout << y << "\n";
 }

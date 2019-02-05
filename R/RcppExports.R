@@ -7,13 +7,13 @@ bernlong <- function(y, x, z, m, block, samples, betaprior, phivprior, betadelt,
 }
 
 #' @export
-foo <- function(n) {
-    invisible(.Call('_trcpp_foo', PACKAGE = 'trcpp', n))
+foo <- function(x) {
+    invisible(.Call('_trcpp_foo', PACKAGE = 'trcpp', x))
 }
 
 #' @export
-mcmc1pl <- function(y, x, d, samp, dtune, ztune) {
-    .Call('_trcpp_mcmc1pl', PACKAGE = 'trcpp', y, x, d, samp, dtune, ztune)
+mcmc1pl <- function(data) {
+    .Call('_trcpp_mcmc1pl', PACKAGE = 'trcpp', data)
 }
 
 #' @export
@@ -27,8 +27,8 @@ lmerperm <- function(x, z, y, clust, block, samples, betaprior, phivprior, psivp
 }
 
 #' @export
-mprobit <- function(Y, X, d, samples, maxy) {
-    .Call('_trcpp_mprobit', PACKAGE = 'trcpp', Y, X, d, samples, maxy)
+mprobit <- function(data) {
+    .Call('_trcpp_mprobit', PACKAGE = 'trcpp', data)
 }
 
 #' @export

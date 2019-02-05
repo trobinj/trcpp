@@ -162,7 +162,7 @@ void ghquad(int n, arma::vec & node, arma::vec & wght) {
     J(i + 1, i) = sqrt((i + 1) / 2.0);
     J(i, i + 1) = J(i + 1, i);
   }
-  const double b0 = sqrt(M_PI);
+  constexpr double b0 = sqrt(M_PI);
   arma::vec eigenval(n);
   arma::mat eigenvec(n, n);
   arma::eig_sym(eigenval, eigenvec, J);

@@ -101,6 +101,16 @@ arma::vec srs(arma::vec x, int n) {
   return x.head(n);
 }
 
+arma::vec srs(int N, int n) {
+  int j;
+  arma::vec x = arma::regspace(0, N - 1);
+  for (int i = 0; i < n; ++i) {
+    j = randint(i, j - 1);
+    vswap(x, i, j);
+  }
+  return x.head(n);
+}
+
 double srs(arma::vec x) {
   return x(randint(0, x.n_elem - 1));
 }

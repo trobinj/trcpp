@@ -42,7 +42,7 @@ double poislogl(arma::vec y, arma::vec lambda) {
   int n = y.n_elem;
   double loglik = 0.0;
   for (int i = 0; i < n; ++i) {
-    loglik = loglik + R::dpois(y(i), lambda(i), true); 
+    loglik = loglik + R::dpois(y(i), lambda(i), true);
   }
   return loglik;
 }
@@ -51,7 +51,7 @@ double poislogl(arma::vec y, double lambda) {
   int n = y.n_elem;
   double loglik = 0.0;
   for (int i = 0; i < n; ++i) {
-    loglik = loglik + R::dpois(y(i), lambda, true); 
+    loglik = loglik + R::dpois(y(i), lambda, true);
   }
   return loglik;
 }

@@ -27,28 +27,23 @@ BEGIN_RCPP
 END_RCPP
 }
 // foo
-void foo(int n);
-RcppExport SEXP _trcpp_foo(SEXP nSEXP) {
+void foo(List x);
+RcppExport SEXP _trcpp_foo(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    foo(n);
+    Rcpp::traits::input_parameter< List >::type x(xSEXP);
+    foo(x);
     return R_NilValue;
 END_RCPP
 }
 // mcmc1pl
-List mcmc1pl(arma::mat y, arma::mat x, arma::vec d, int samp, double dtune, double ztune);
-RcppExport SEXP _trcpp_mcmc1pl(SEXP ySEXP, SEXP xSEXP, SEXP dSEXP, SEXP sampSEXP, SEXP dtuneSEXP, SEXP ztuneSEXP) {
+List mcmc1pl(List data);
+RcppExport SEXP _trcpp_mcmc1pl(SEXP dataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type d(dSEXP);
-    Rcpp::traits::input_parameter< int >::type samp(sampSEXP);
-    Rcpp::traits::input_parameter< double >::type dtune(dtuneSEXP);
-    Rcpp::traits::input_parameter< double >::type ztune(ztuneSEXP);
-    rcpp_result_gen = Rcpp::wrap(mcmc1pl(y, x, d, samp, dtune, ztune));
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    rcpp_result_gen = Rcpp::wrap(mcmc1pl(data));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -91,17 +86,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // mprobit
-List mprobit(arma::mat Y, arma::mat X, arma::vec d, int samples, int maxy);
-RcppExport SEXP _trcpp_mprobit(SEXP YSEXP, SEXP XSEXP, SEXP dSEXP, SEXP samplesSEXP, SEXP maxySEXP) {
+List mprobit(List data);
+RcppExport SEXP _trcpp_mprobit(SEXP dataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type d(dSEXP);
-    Rcpp::traits::input_parameter< int >::type samples(samplesSEXP);
-    Rcpp::traits::input_parameter< int >::type maxy(maxySEXP);
-    rcpp_result_gen = Rcpp::wrap(mprobit(Y, X, d, samples, maxy));
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    rcpp_result_gen = Rcpp::wrap(mprobit(data));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -141,10 +132,10 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
     {"_trcpp_foo", (DL_FUNC) &_trcpp_foo, 1},
-    {"_trcpp_mcmc1pl", (DL_FUNC) &_trcpp_mcmc1pl, 6},
+    {"_trcpp_mcmc1pl", (DL_FUNC) &_trcpp_mcmc1pl, 1},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
-    {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 5},
+    {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 1},
     {"_trcpp_pmvnorm", (DL_FUNC) &_trcpp_pmvnorm, 6},
     {"_trcpp_raschic", (DL_FUNC) &_trcpp_raschic, 6},
     {NULL, NULL, 0}
