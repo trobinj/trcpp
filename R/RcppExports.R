@@ -7,8 +7,8 @@ bernlong <- function(y, x, z, m, block, samples, betaprior, phivprior, betadelt,
 }
 
 #' @export
-foo <- function(x) {
-    invisible(.Call('_trcpp_foo', PACKAGE = 'trcpp', x))
+foo <- function(mu, sigma, a, b) {
+    .Call('_trcpp_foo', PACKAGE = 'trcpp', mu, sigma, a, b)
 }
 
 #' @export
@@ -24,6 +24,11 @@ lmerlong <- function(y, x, z, m, block, samples, betaprior, phivprior, psivprior
 #' @export
 lmerperm <- function(x, z, y, clust, block, samples, betaprior, phivprior, psivprior) {
     .Call('_trcpp_lmerperm', PACKAGE = 'trcpp', x, z, y, clust, block, samples, betaprior, phivprior, psivprior)
+}
+
+#' @export
+mnprnk <- function(data) {
+    .Call('_trcpp_mnprnk', PACKAGE = 'trcpp', data)
 }
 
 #' @export

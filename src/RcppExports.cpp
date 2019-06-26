@@ -27,13 +27,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // foo
-void foo(List x);
-RcppExport SEXP _trcpp_foo(SEXP xSEXP) {
+double foo(double mu, double sigma, double a, double b);
+RcppExport SEXP _trcpp_foo(SEXP muSEXP, SEXP sigmaSEXP, SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< List >::type x(xSEXP);
-    foo(x);
-    return R_NilValue;
+    Rcpp::traits::input_parameter< double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type b(bSEXP);
+    rcpp_result_gen = Rcpp::wrap(foo(mu, sigma, a, b));
+    return rcpp_result_gen;
 END_RCPP
 }
 // mcmc1pl
@@ -85,6 +89,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mnprnk
+List mnprnk(List data);
+RcppExport SEXP _trcpp_mnprnk(SEXP dataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    rcpp_result_gen = Rcpp::wrap(mnprnk(data));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mprobit
 List mprobit(List data);
 RcppExport SEXP _trcpp_mprobit(SEXP dataSEXP) {
@@ -131,10 +146,11 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
-    {"_trcpp_foo", (DL_FUNC) &_trcpp_foo, 1},
+    {"_trcpp_foo", (DL_FUNC) &_trcpp_foo, 4},
     {"_trcpp_mcmc1pl", (DL_FUNC) &_trcpp_mcmc1pl, 1},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
+    {"_trcpp_mnprnk", (DL_FUNC) &_trcpp_mnprnk, 1},
     {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 1},
     {"_trcpp_pmvnorm", (DL_FUNC) &_trcpp_pmvnorm, 6},
     {"_trcpp_raschic", (DL_FUNC) &_trcpp_raschic, 6},

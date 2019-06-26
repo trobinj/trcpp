@@ -8,7 +8,7 @@
 
 // Compute nodes and weights for the Gauss-Hermite quadrature approximation
 // \int_{-\infty}^{\infty} e^{-x^2} f(x) dx \approx \sum_{i=1}^n w_i f(x_i).
-// Requires GSL 2.5 or later for fixed quadrature classes.
+// Requires GSL 2.5 or later (I think) for fixed quadrature classes.
 
 void ghquad(int n, arma::vec &node, arma::vec &wght) {
 

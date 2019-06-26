@@ -6,7 +6,7 @@
 #include "misc.h" // for vswap
 
 // To do: Replace do-while randint with Fisher-Yates shuffle algorithm...something
-// like u = srs(arma::regspace(0, n-1), 2);
+// like u = srs(arma::regspace(0, n-1), 2); Maybe not necessary?
 
 // Sampler for bernoulli-distributed variables.
 arma::vec bernperm(int samples, arma::vec y, arma::vec p) {

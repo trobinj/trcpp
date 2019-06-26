@@ -10,10 +10,10 @@ int randint(int a, int b);
 int rdiscrete(arma::vec wght);
 void shuffle(arma::vec & x);
 arma::vec srs(arma::vec x, int n);
-double srs(arma::vec x);
 
 double rtnorm(double mu, double sigma, double a, double b);
 double rnormpos(double m, double s, bool pos);
+double rnormint(double m, double s, double a, double b);
 double rnormtail(double a, double m, double s, bool pos);
 
 double dmvnorm(arma::vec y, arma::vec mu, arma::mat sigma, bool logd);

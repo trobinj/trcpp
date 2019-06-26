@@ -1,14 +1,12 @@
 // Functions for testing purposes only.
 
 #include <RcppArmadillo.h>
-#include "misc.h"
-#include "comb.h"
+#include "dist.h"
 
 using namespace Rcpp;
 
 //' @export
 // [[Rcpp::export]]
-void foo(List x) {
-  arma::mat y = x["x"];
-  Rcout << y << "\n";
+double foo(double mu, double sigma, double a, double b) {
+  return rtnorm(mu, sigma, a, b);
 }

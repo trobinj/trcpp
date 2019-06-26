@@ -7,26 +7,24 @@
 
 using namespace Rcpp;
 
-// Censoring rule (minimum total score).
-bool censor_total(arma::mat y, double b) {
-  return sum(y,1).min() < b ? true : false;
+bool censor_sum(arma::mat y, double b) {
+  return sum(y,1).min() <= b ? true : false;
 }
 
-// Censoring rule (matching coefficient).
-bool censor_match(arma::mat y, double b) {
-  int n = y.n_rows;
+// Censor if the proportion of 0 or 1 responses is at least b on any item.
+bool censor_div(arma::mat y, double b) {
   int m = y.n_cols;
-  int t = 0;
-  arma::vec a(n * (n - 1)/2, arma::fill::zeros);
-  for (int i = 1; i < n; ++i) {
-    for (int l = 0; l < i; ++l) {
-      for (int j = 0; j < m; ++j) {
-        a(t) = a(t) + (y(i,j) == y(l,j));
-        ++t;
-      }
+  double pj;
+  for (int j = 0; j < m; ++j) {
+    pj = mean(y.col(j));
+    if (pj >= b) {
+      return true; 
+    }
+    if (pj <= 1 - b) {
+      return true; 
     }
   }
-  return min(a) < b ? true : false;
+  return false;
 }
 
 // Sample block of item responses from proposal distribution.
@@ -51,13 +49,12 @@ double samp1pl(arma::vec y, double pold, arma::vec offset, double pm, double ps,
   if (R::runif(0.0, 1.0) < exp(lnew - lold)) {
     ++cnt;
     return pnew;
-  } else {
-    return pold;
   }
+  return pold;
 }
 
 typedef bool (*censoringrule)(arma::mat y, double b);
-censoringrule censor = censor_total; // specify censoring rule
+censoringrule censor = censor_div; // specify censoring rule
 
 //' @export
 // [[Rcpp::export]]
@@ -107,7 +104,8 @@ List mcmc1pl(List data) {
 
     // Sample respondent parameters.
     for (int i = 0; i < n; ++i) {
-      zeta(i) = samp1pl(vectorise(y.row(i)), zeta(i), delt, as_scalar(x.row(i) * beta), sqrt(psiv), ztune, zcnt);
+      zeta(i) = samp1pl(vectorise(y.row(i)), zeta(i), delt,
+        as_scalar(x.row(i) * beta), sqrt(psiv), ztune, zcnt);
     }
 
     // Sample item parameters.

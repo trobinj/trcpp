@@ -3,8 +3,8 @@
 #include <RcppArmadillo.h>
 #include "misc.h"
 
-const double log2pi = log(2.0 * M_PI);
-const double logpi = log(M_PI);
+constexpr double log2pi = log(2.0 * M_PI);
+constexpr double logpi = log(M_PI);
 
 // Sampler for sampling from the tail of a truncated normal distribution
 // using either Marsaglia's (1964, Technometrics) rejection sampler or a
@@ -31,22 +31,55 @@ double rnormtail(double a, double m, double s, bool pos) {
 double rnormpos(double m, double s, bool pos) {
   double l, a, z, p, u;
   l = pos ? -m/s : m/s;
-  a = (l + sqrt(pow(l,2) + 4.0)) / 2.0;
+  a = (l + sqrt(pow(l, 2) + 4.0))/2.0;
   do {
     z = R::rexp(1.0) / a + l;
-    p = exp(-pow(z - a, 2) / 2.0);
     u = R::runif(0.0, 1.0);
+    p = exp(-pow(z - a, 2)/2.0);
   } while(u > p);
   return pos ? z * s + m : -z * s + m;
 }
 
-// Simple rejection sampler for truncated normal distribution.
+// Sampler for a finite interval-truncated normal random variable using
+// a rejection algorithm from Robert (1995, Statistics and Computing).
+double rnormint(double m, double s, double a, double b) {
+  double low = (a - m) / s;
+  double upp = (b - m) / s;
+  double z, u, p;
+  if (upp < 0) {
+    do {
+      z = R::runif(low, upp);
+      u = R::runif(0.0, 1.0);
+      p = exp((pow(b,2) - pow(z,2)) / 2.0);
+    } while (u > p);
+  }
+  else if (low > 0) {
+    do {
+      z = R::runif(low, upp);
+      u = R::runif(0.0, 1.0);
+      p = exp((pow(a,2) - pow(z,2)) / 2.0);
+    } while (u > p);
+  }
+  else {
+    do {
+      z = R::runif(low, upp);
+      u = R::runif(0.0, 1.0);
+      p = exp(-pow(z,2) / 2.0);
+    } while (u > p);
+  }
+  return z * s + m;
+}
+
+// Rejection sampler for left-truncated, right-truncated, or interval-truncated
+// normal random variable using rnormpos and rnormint.
 double rtnorm(double mu, double sigma, double a, double b) {
-  double y;
-  do {
-    y = R::rnorm(mu, sigma);
-  } while ((a > y) || (y > b));
-  return y;
+  if (std::isnan(a)) {
+    return rnormpos(mu - b, sigma, false) + b;
+  }
+  if (std::isnan(b)) {
+    return rnormpos(mu - a, sigma,  true) + a;
+  }
+  return rnormint(mu, sigma, a, b);
 }
 
 // Sampler for n random integers in [a,b].
@@ -79,8 +112,7 @@ int rdiscrete(arma::vec wght) {
   return n - 1;
 }
 
-// Fisher-Yates random shuffle algorithm for vec class. (Just
-// for illustration, as Armadillo includes a shuffle function).
+// Fisher-Yates random shuffle algorithm for vec class.
 void shuffle(arma::vec & x) {
   int j;
   int n = x.n_elem;
@@ -90,7 +122,7 @@ void shuffle(arma::vec & x) {
   }
 }
 
-// Simple random sampling using the Fisher-Yates shuffle algorithm.
+// Simple random sampling from vector x using the Fisher-Yates shuffle algorithm.
 arma::vec srs(arma::vec x, int n) {
   int j;
   int l = x.n_elem;
@@ -101,18 +133,15 @@ arma::vec srs(arma::vec x, int n) {
   return x.head(n);
 }
 
+// Simple random sampling from integers 0..N-1 using the Fisher-Yates algorithm.
 arma::vec srs(int N, int n) {
   int j;
   arma::vec x = arma::regspace(0, N - 1);
   for (int i = 0; i < n; ++i) {
-    j = randint(i, j - 1);
+    j = randint(i, N - 1);
     vswap(x, i, j);
   }
   return x.head(n);
-}
-
-double srs(arma::vec x) {
-  return x(randint(0, x.n_elem - 1));
 }
 
 // Probability density function of a multivariate normal distribution.

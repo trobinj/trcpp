@@ -10,7 +10,7 @@ double qnorm(double p) {
   return R::qnorm(p, 0.0, 1.0, true, false);
 }
 
-// Note: This function is currenty broken. Do not use. 
+// Note: This function is currenty broken. Do not use.
 //' @export
 // [[Rcpp::export]]
 double pmvnorm(arma::mat s, arma::vec a, arma::vec b, double epsi, double alph, int nmax) {
