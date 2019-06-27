@@ -24,9 +24,9 @@ namespace rnkspc {
     double pab = pnorm((b-m)/s) - pnorm((a-m)/s);
     double pcd = pnorm((d-m)/s) - pnorm((c-m)/s);
     if (R::runif(0.0, 1.0) < pab / (pab + pcd)) {
-      return trnorm(m, s, a, b); 
+      return rnormint(m, s, a, b); 
     } else {
-      return trnorm(m, s, c, d); 
+      return rnormint(m, s, c, d); 
     }
   }
 
@@ -168,8 +168,8 @@ List mnprnk(List data) {
     betasave.row(k) = beta.t() / sqrt(alph);
     sigmsave.row(k) = lowertri(S, true).t() / alph;
 
-    Rcpp::Rcout << "beta:\n" << beta / sqrt(alph) << "\n"; // for debugging
-    Rcpp::Rcout << "sigm:\n" << S / alph << "\n";          // for debugging
+    //Rcpp::Rcout << "beta:\n" << beta / sqrt(alph) << "\n"; // for debugging
+    //Rcpp::Rcout << "sigm:\n" << S / alph << "\n";          // for debugging
   }
   
   return List::create(

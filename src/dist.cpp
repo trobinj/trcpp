@@ -5,6 +5,7 @@
 
 constexpr double log2pi = log(2.0 * M_PI);
 constexpr double logpi = log(M_PI);
+constexpr double sqrt2pi = sqrt(2.0 * M_PI);
 
 // Sampler for sampling from the tail of a truncated normal distribution
 // using either Marsaglia's (1964, Technometrics) rejection sampler or a
@@ -45,27 +46,24 @@ double rnormpos(double m, double s, bool pos) {
 double rnormint(double m, double s, double a, double b) {
   double low = (a - m) / s;
   double upp = (b - m) / s;
-  double z, u, p;
+  double z, u, p, d;
   if (upp < 0) {
-    do {
-      z = R::runif(low, upp);
-      u = R::runif(0.0, 1.0);
-      p = exp((pow(b,2) - pow(z,2)) / 2.0);
-    } while (u > p);
+    d = pow(upp,2); 
+  } else if (low > 0) {
+    d = pow(low,2);
+  } else {
+    d = 0.0;
   }
-  else if (low > 0) {
+  if ((b-a)/d < sqrt2pi) {
     do {
       z = R::runif(low, upp);
       u = R::runif(0.0, 1.0);
-      p = exp((pow(a,2) - pow(z,2)) / 2.0);
+      p = exp((d - pow(z,2)) / 2.0);
     } while (u > p);
-  }
-  else {
+  } else {
     do {
-      z = R::runif(low, upp);
-      u = R::runif(0.0, 1.0);
-      p = exp(-pow(z,2) / 2.0);
-    } while (u > p);
+      z = R::rnorm(0.0, 1.0);
+    } while (low > z || z > upp);
   }
   return z * s + m;
 }
