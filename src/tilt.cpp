@@ -43,8 +43,8 @@ arma::vec multroot(arma::mat prb, arma::vec s) {
 arma::mat multrjct(arma::mat prb, arma::vec s) {
   int n = prb.n_rows;
   int m = prb.n_cols;
-  arma::mat y(n, m);
-  arma::mat p(n, m);
+  arma::mat y(n,m);
+  arma::mat p(n,m);
   arma::vec num(m);
   double den;
   arma::vec t = multroot(prb, s);
@@ -60,7 +60,7 @@ arma::mat multrjct(arma::mat prb, arma::vec s) {
     for (int i = 0; i < n; ++i) {
       y(i, rdiscrete(vectorise(prb.row(i)))) = 1;
     }
-  } while (any(sum(y, 0).t() != s));
+  } while (any(sum(y, 0).t() != s)); // could be made faster
   return y * arma::regspace(0, m - 1);
 }
 

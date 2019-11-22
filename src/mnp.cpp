@@ -1,21 +1,14 @@
 #include <RcppArmadillo.h>
 #include "dist.h"
 #include "misc.h"
+#include "post.h"
 
 using namespace Rcpp;
 
-namespace rnkspc {
+namespace mnpspc {
 
   double pnorm(double x) {
     return R::pnorm(x, 0.0, 1.0, true, false);
-  }
-
-  double trnorm(double m, double s, double a, double b) {
-    double y;
-    do {
-      y = R::rnorm(m, s);
-    } while (a > y || y > b);
-    return y;
   }
 
   // Sampler for truncated normal distribution with non-zero support
@@ -24,13 +17,14 @@ namespace rnkspc {
     double pab = pnorm((b-m)/s) - pnorm((a-m)/s);
     double pcd = pnorm((d-m)/s) - pnorm((c-m)/s);
     if (R::runif(0.0, 1.0) < pab / (pab + pcd)) {
-      return rnormint(m, s, a, b); 
+      return rnormint(m, s, a, b);
     } else {
-      return rnormint(m, s, c, d); 
+      return rnormint(m, s, c, d);
     }
   }
 
-  // Compute mean and variance of conditional distribution.
+  // Compute mean and variance of a univariate conditional disribution given a
+  // multivariate normal distribution.
   void cdist(arma::vec m, arma::mat s, arma::vec x, int j, double & mj, double & vj) {
 
     arma::mat m2(m);
@@ -55,21 +49,188 @@ namespace rnkspc {
 
 //' @export
 // [[Rcpp::export]]
-List mnprnk(List data) {
+List mnpirt(List data) {
+
+  using namespace mnpspc;
+
+  arma::mat Y = data["Y"];
+  arma::mat X = data["X"];
+  arma::mat Z = data["Z"];
+  int samples = data["samples"];
+  int r = data["r"];    // number of response categories
+
+  int n = Y.n_rows;     // number of respondents
+  int m = Y.n_cols / r; // number of items
+  int c = m * r;        // number of latent responses
+  int p = X.n_cols;     // number of covariate parameters
+  int q = Z.n_cols;     // number of respondent-specific parameters
+
+  arma::mat M(n,c);
+  arma::mat U(n,c);
+  arma::vec mi(c);
+  arma::vec ui(c);
+  arma::vec yi(c);
+
+  arma::mat XRX(p, p);
+  arma::vec XRu(p);
+  arma::mat Xi(c, p);
+  arma::mat Zi(c, q);
+
+  arma::mat Bb(p, p);
+  arma::mat Bz(q, q);
+
+  arma::vec beta(p, arma::fill::zeros);
+  arma::mat Sz(q, q, arma::fill::eye);
+  arma::mat Rz = inv(Sz);
+  arma::mat Su(c, c, arma::fill::eye);
+  arma::mat Ru = inv(Su);
+  arma::mat zeta(n,q);
   
+  double alph = 1.0;
+
+  // Prior parameter specification.
+  arma::mat Rb = arma::eye(p,p);
+  arma::mat Vz = arma::eye(q,q) * 10;
+  int vz = 10;
+
+  arma::mat betasave(samples, p);
+  arma::mat sigmsave(samples, c * (c + 1) / 2);
+
+  for (int i = 0; i < n; ++i) {
+    mi = X.rows(i * c, i * c + c - 1) * beta;
+    M.row(i) = mi.t();
+  }
+
+  arma::vec yij(r);
+  arma::vec uij(r);
+
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < m; ++j) {
+      uij.randn();
+      uij = uij(sort_index(abs(uij)));
+      for (int k = 0; k < r; ++k) {
+        U(i, j * r + k) = uij(Y(i, j * r + k) - 1);
+      }
+    }
+  }
+
+  for (int t = 0; t < samples; ++t) {
+
+    if ((t + 1) % 100 == 0) {
+      Rcpp::Rcout << "Sample: " << t + 1 << "\n";
+      Rcpp::checkUserInterrupt();
+    }
+
+    // Sample latent responses.
+
+    for (int i = 0; i < n; ++i) {
+
+      mi = vectorise(M.row(i));
+      ui = vectorise(U.row(i));
+      yi = vectorise(Y.row(i));
+
+      for (int j = 0; j < m; ++j) {
+
+        uij = ui(arma::span(j*r, j*r + r - 1));
+        yij = yi(arma::span(j*r, j*r + r - 1));
+
+        for (int k = 0; k < r; ++k) {
+
+          double low, upp;
+          double mjk, vjk;
+
+          if (Y(i, j * r + k) == 1) {
+            low = 0.0;
+            upp = min(abs(uij(find(yij > yij(k)))));
+          } else if (Y(i, j * r + k) == max(yij)) {
+            low = max(abs(uij(find(yij < yij(k)))));
+            upp = 1.0e+5;
+          } else {
+            low = max(abs(uij(find(yij < yij(k)))));
+            upp = min(abs(uij(find(yij > yij(k)))));
+          }
+
+          cdist(mi, Su, ui, j * r + k, mjk, vjk);
+          ui(j * r + k) = truncmix(mjk, sqrt(vjk), -upp, -low, low, upp);
+          uij(k) = ui(j * r + k);
+        }
+      }
+      U.row(i) = ui.t();
+    }
+
+    // Sample beta.
+
+    XRX.fill(0.0);
+    XRu.fill(0.0);
+    for (int i = 0; i < n; ++i) {
+      Xi = X.rows(i * c, i * c + c - 1);
+      ui = vectorise(U.row(i));
+      XRX = XRX + Xi.t() * Ru * Xi;
+      XRu = XRu + Xi.t() * Ru * ui;
+    }
+    Bb = inv(XRX + Rb);
+    beta = mvrnorm(Bb * XRu, Bb, false);
+    
+    for (int i = 0; i < n; ++i) {
+      mi = X.rows(i * c, i * c + c - 1) * beta;
+      M.row(i) = mi.t();
+    }
+
+    // Sample zeta.
+
+    for (int i = 0; i < n; ++i) {
+      Zi = Z.rows(i * c, i * c + c - 1);
+      ui = vectorise(U.row(i)) - X.rows(i * c, i * c + c - 1) * beta;
+      Bz = inv(Zi.t() * Zi + Rz);
+      zeta.row(i) = mvrnorm(Bz * Zi.t() * ui, Bz, false).t();
+    }
+
+    // Sample phi matrix.
+
+    // Delay sampling from conditional posterior of covariance matrix to improve initial mixing.    
+    if (t > 499) {
+      Rz = rwishart(n + vz, inv(Vz + zeta.t() * zeta));
+      Sz = inv(Rz);
+    }
+    
+    Zi = Z.rows(0, c - 1); // assuming same covariance structure for all i
+    Su = Zi * Sz * Zi.t() + arma::eye(c,c);
+    Ru = inv(Su);
+
+    // Store sample.
+    
+    alph = pow(det(Su), 1.0 / c);
+    alph = 1.0;
+
+    betasave.row(t) = beta.t() / sqrt(alph);
+    sigmsave.row(t) = lowertri(Su, true).t() / alph;
+  }
+
+  return List::create(
+    Named("beta") = wrap(betasave),
+    Named("sigm") = wrap(sigmsave)
+  );
+}
+
+//' @export
+// [[Rcpp::export]]
+List mnprnk(List data) {
+
+  using namespace mnpspc;
+
   arma::mat Y = data["Y"];
   arma::mat X = data["X"];
   int samples = data["samples"];
   arma::vec beta = data["beta"];
   arma::mat S = data["S"];
-  
+
   int n = Y.n_rows;
   int m = Y.n_cols;
   int p = X.n_cols;
-  
+
   arma::mat W = inv(S);
   arma::mat M(n, m);
-  
+
   arma::mat XWX(p, p);
   arma::vec XWu(p);
   arma::mat Xi(m, p);
@@ -79,42 +240,42 @@ List mnprnk(List data) {
   arma::mat B(p, p);
   arma::mat Z(n, m);
   arma::mat U(n, m);
-    
+
+  arma::vec zeta(n);
+
   // Prior parameter specification.
   arma::mat Rb = arma::eye(p,p);
   arma::mat V = arma::eye(m,m) * 10;
   int v = 10;
-  
-  double alph;
+  double phi = 1.0;
+
+  double alph = 1.0;
 
   for (int i = 0; i < n; ++i) {
     mi = X.rows(i * m, i * m + m - 1) * beta;
     M.row(i) = mi.t();
   }
-    
-  // Initialize latent responses, consistent with observed rankings.
+
+  // Initialize latent responses that are consistent with observed rankings.
   for (int i = 0; i < n; ++i) {
     ui.randn();
-    arma::vec utmp(m, arma::fill::randn);
-    utmp = utmp(sort_index(abs(utmp)));
+    ui = ui(sort_index(abs(ui)));
     for (int j = 0; j < m; ++j) {
-      U(i,j) = utmp(Y(i,j) - 1);
+      U(i,j) = ui(Y(i,j) - 1);
     }
   }
 
-  // Saved simulated realizations from posterior distribution.
+  // Arrays to store stimulated realizations from the posterior distribution.
   arma::mat betasave(samples, p);
   arma::mat sigmsave(samples, m * (m + 1) / 2);
-  
+
   for (int k = 0; k < samples; ++k) {
-    
+
     if ((k + 1) % 100 == 0) {
       Rcpp::Rcout << "Sample: " << k + 1 << "\n";
-      Rcpp::checkUserInterrupt(); // for debugging
+      Rcpp::checkUserInterrupt();
     }
-    
-    // Need to make truncated normal sampler more robust.
-    
+
     for (int i = 0; i < n; ++i) {
       ui = vectorise(U.row(i));
       yi = vectorise(Y.row(i));
@@ -124,22 +285,21 @@ List mnprnk(List data) {
         double mj, vj;
         if (Y(i,j) == 1) {
           lw = 0.0;
-          up = as_scalar(abs(ui(find(yi == 2))));
-        } else if (Y(i,j) == m) {
-          lw = as_scalar(abs(ui(find(yi == m - 1))));
+          up = min(abs(ui(find(yi > yi(j)))));
+        } else if (Y(i,j) == max(yi)) {
+          lw = max(abs(ui(find(yi < yi(j)))));
           up = 1.0e+5;
         } else {
-          lw = as_scalar(abs(ui(find(yi == yi(j) - 1))));
-          up = as_scalar(abs(ui(find(yi == yi(j) + 1))));
+          lw = max(abs(ui(find(yi < yi(j)))));
+          up = min(abs(ui(find(yi > yi(j)))));
         }
-        rnkspc::cdist(mi, S, ui, j, mj, vj);
-        ui(j) = rnkspc::truncmix(mj, sqrt(vj), -up, -lw, lw, up);
+        cdist(mi, S, ui, j, mj, vj);
+        ui(j) = truncmix(mj, sqrt(vj), -up, -lw, lw, up);
       }
       U.row(i) = ui.t();
     }
-    
-    // Sample beta.
 
+    // Sample beta.
 
     XWX.fill(0.0);
     XWu.fill(0.0);
@@ -151,27 +311,38 @@ List mnprnk(List data) {
     }
     B = inv(XWX + Rb);
     beta = mvrnorm(B * XWu, B, false);
-       
+
     for (int i = 0; i < n; ++i) {
       mi = X.rows(i * m, i * m + m - 1) * beta;
       M.row(i) = mi.t();
     }
 
-    // This tends to improve convergence. 
+    /*
     if (k > 99) {
       Z = U - M;
       W = rwishart(n + v, inv(V + Z.t() * Z));
       S = inv(W);
     }
-
     alph = pow(det(S), 1.0 / m);
+    */
+
+    for (int i = 0; i < n; ++i) {
+      ui = vectorise(U.row(i));
+      mi = vectorise(M.row(i));
+      zeta(i) = meanpost(ui - mi, 1.0, 0.0, phi);
+    }
+
+    phi = sigmpost(zeta, 0.0, 10 / 2.0, 10 / 2.0); // Note: Prior specification here.
+    S = arma::ones(m,m) * phi + arma::eye(m,m);
+    W = inv(S);
+
     betasave.row(k) = beta.t() / sqrt(alph);
     sigmsave.row(k) = lowertri(S, true).t() / alph;
 
-    //Rcpp::Rcout << "beta:\n" << beta / sqrt(alph) << "\n"; // for debugging
-    //Rcpp::Rcout << "sigm:\n" << S / alph << "\n";          // for debugging
+    // Rcpp::Rcout << "beta:\n" << beta / sqrt(alph) << "\n";
+    // Rcpp::Rcout << "sigm:\n" << S / alph << "\n";
   }
-  
+
   return List::create(
     Named("sigm") = wrap(sigmsave),
     Named("beta") = wrap(betasave)
@@ -260,7 +431,7 @@ List mnprnk(List data) {
     Ut = U * sqrt(a2);
 
     // Step 2: Sample beta and a2.
-    
+
     {
       arma::mat XWX(p, p, arma::fill::zeros);
       arma::vec XWu(p, arma::fill::zeros);
@@ -299,16 +470,16 @@ List mnprnk(List data) {
 
       a2 = trace(St) / m;
       a2 = St(0,0);
-      
+
       S = St / a2;
-      
+
       W = inv(S);
       U = Ut / sqrt(a2);
       //beta = bt / sqrt(a2);
 
       sigmsave.row(k) = lowertri(S, true).t();
     }
-    
+
     Rcpp::Rcout << beta << "\n";
     Rcpp::Rcout << S << "\n";
   }

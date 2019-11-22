@@ -43,18 +43,19 @@ double rnormpos(double m, double s, bool pos) {
 
 // Sampler for a finite interval-truncated normal random variable using
 // a rejection algorithm from Robert (1995, Statistics and Computing).
+// Includes an efficiency check against a simple rejection sampler.
 double rnormint(double m, double s, double a, double b) {
   double low = (a - m) / s;
   double upp = (b - m) / s;
   double z, u, p, d;
   if (upp < 0) {
-    d = pow(upp,2); 
+    d = pow(upp,2);
   } else if (low > 0) {
     d = pow(low,2);
   } else {
     d = 0.0;
   }
-  if ((b-a)/d < sqrt2pi) {
+  if ((b - a) / d < sqrt2pi) {
     do {
       z = R::runif(low, upp);
       u = R::runif(0.0, 1.0);
@@ -131,12 +132,12 @@ arma::vec srs(arma::vec x, int n) {
   return x.head(n);
 }
 
-// Simple random sampling from integers 0..N-1 using the Fisher-Yates algorithm.
-arma::vec srs(int N, int n) {
+// Simple random sampling from integers 0..m-1 using the Fisher-Yates algorithm.
+arma::vec srs(int m, int n) {
   int j;
-  arma::vec x = arma::regspace(0, N - 1);
+  arma::vec x = arma::regspace(0, m - 1);
   for (int i = 0; i < n; ++i) {
-    j = randint(i, N - 1);
+    j = randint(i, m - 1);
     vswap(x, i, j);
   }
   return x.head(n);

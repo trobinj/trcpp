@@ -89,6 +89,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mnpirt
+List mnpirt(List data);
+RcppExport SEXP _trcpp_mnpirt(SEXP dataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    rcpp_result_gen = Rcpp::wrap(mnpirt(data));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mnprnk
 List mnprnk(List data);
 RcppExport SEXP _trcpp_mnprnk(SEXP dataSEXP) {
@@ -150,6 +161,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_mcmc1pl", (DL_FUNC) &_trcpp_mcmc1pl, 1},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
+    {"_trcpp_mnpirt", (DL_FUNC) &_trcpp_mnpirt, 1},
     {"_trcpp_mnprnk", (DL_FUNC) &_trcpp_mnprnk, 1},
     {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 1},
     {"_trcpp_pmvnorm", (DL_FUNC) &_trcpp_pmvnorm, 6},

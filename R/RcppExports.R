@@ -27,6 +27,11 @@ lmerperm <- function(x, z, y, clust, block, samples, betaprior, phivprior, psivp
 }
 
 #' @export
+mnpirt <- function(data) {
+    .Call('_trcpp_mnpirt', PACKAGE = 'trcpp', data)
+}
+
+#' @export
 mnprnk <- function(data) {
     .Call('_trcpp_mnprnk', PACKAGE = 'trcpp', data)
 }

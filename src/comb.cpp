@@ -16,7 +16,7 @@ arma::vec pairperm(arma::vec y) {
   z(0) = -1;
   z(1) =  1;
   d = d - 1;
-  fill(d, z);
+  fill(d,z);
 
   arma::vec s(m);
 
