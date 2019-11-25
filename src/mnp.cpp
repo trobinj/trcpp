@@ -317,15 +317,14 @@ List mnprnk(List data) {
       M.row(i) = mi.t();
     }
 
-    /*
     if (k > 99) {
       Z = U - M;
       W = rwishart(n + v, inv(V + Z.t() * Z));
       S = inv(W);
     }
     alph = pow(det(S), 1.0 / m);
-    */
 
+    /*
     for (int i = 0; i < n; ++i) {
       ui = vectorise(U.row(i));
       mi = vectorise(M.row(i));
@@ -335,7 +334,8 @@ List mnprnk(List data) {
     phi = sigmpost(zeta, 0.0, 10 / 2.0, 10 / 2.0); // Note: Prior specification here.
     S = arma::ones(m,m) * phi + arma::eye(m,m);
     W = inv(S);
-
+    */
+     
     betasave.row(k) = beta.t() / sqrt(alph);
     sigmsave.row(k) = lowertri(S, true).t() / alph;
 
