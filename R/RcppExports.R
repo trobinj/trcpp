@@ -7,8 +7,8 @@ bernlong <- function(y, x, z, m, block, samples, betaprior, phivprior, betadelt,
 }
 
 #' @export
-foo <- function(n, m, s, a, b) {
-    invisible(.Call('_trcpp_foo', PACKAGE = 'trcpp', n, m, s, a, b))
+foo <- function(x, a, b) {
+    invisible(.Call('_trcpp_foo', PACKAGE = 'trcpp', x, a, b))
 }
 
 #' @export

@@ -13,8 +13,8 @@ void shuffle(arma::vec & x);
 arma::vec srs(arma::vec x, int n);
 arma::vec srs(int m, int n);
 
-double rtnorm(double mu, double sigma, double a, double b);
 double rnormpos(double m, double s, bool pos);
+double rnormrej(double m, double s, double a, double b);
 double rnormint(double m, double s, double a, double b);
 double rnormtail(double a, double m, double s, bool pos);
 

@@ -14,8 +14,8 @@ namespace mnpspc {
   // Sampler for truncated normal distribution with non-zero support
   // on (a,b) and (c,d) where a < b < c < d.
   double truncmix(double m, double s, double a, double b, double c, double d) {
-    double pab = pnorm((b-m)/s) - pnorm((a-m)/s);
-    double pcd = pnorm((d-m)/s) - pnorm((c-m)/s);
+    double pab = pnorm((b - m) / s) - pnorm((a - m) / s);
+    double pcd = pnorm((d - m) / s) - pnorm((c - m) / s);
     if (R::runif(0.0, 1.0) < pab / (pab + pcd)) {
       return rnormint(m, s, a, b);
     } else {
@@ -40,7 +40,7 @@ namespace mnpspc {
     arma::mat s12 = s.row(j);
     s12.shed_col(j);
 
-    arma::mat b = s12 * inv(s22);
+    arma::mat b = s12 * inv_sympd(s22);
 
     mj = m(j) + as_scalar(b * (x2 - m2));
     vj = s(j,j) - as_scalar(b * s12.t());
@@ -53,17 +53,17 @@ List mnpirt(List data) {
 
   using namespace mnpspc;
 
-  arma::mat Y = data["Y"];
+  arma::mat Y = data["Y"];          // maybe change type to unsigned integer (umat)
   arma::mat X = data["X"];
   arma::mat Z = data["Z"];
   int samples = data["samples"];
-  int r = data["r"];    // number of response categories
+  int r = data["r"];                // number of stimuli per presentation
 
-  int n = Y.n_rows;     // number of respondents
-  int m = Y.n_cols / r; // number of items
-  int c = m * r;        // number of latent responses
-  int p = X.n_cols;     // number of covariate parameters
-  int q = Z.n_cols;     // number of respondent-specific parameters
+  int n = Y.n_rows;                 // number of respondents
+  int m = Y.n_cols / r;             // number of presentations
+  int c = m * r;                    // number of latent responses
+  int p = X.n_cols;                 // number of covariate parameters
+  int q = Z.n_cols;                 // number of respondent-specific parameters
 
   arma::mat M(n,c);
   arma::mat U(n,c);
@@ -85,13 +85,13 @@ List mnpirt(List data) {
   arma::mat Su(c, c, arma::fill::eye);
   arma::mat Ru = inv(Su);
   arma::mat zeta(n,q);
-  
-  double alph = 1.0;
 
   // Prior parameter specification.
   arma::mat Rb = arma::eye(p,p);
-  arma::mat Vz = arma::eye(q,q) * 10;
-  int vz = 10;
+  arma::mat Vz = arma::eye(q,q);
+  int vz = q + 1;
+
+  double alph = 1.0;
 
   arma::mat betasave(samples, p);
   arma::mat sigmsave(samples, c * (c + 1) / 2);
@@ -109,14 +109,18 @@ List mnpirt(List data) {
       uij.randn();
       uij = uij(sort_index(abs(uij)));
       for (int k = 0; k < r; ++k) {
-        U(i, j * r + k) = uij(Y(i, j * r + k) - 1);
+        if (Y(i, j * r + k) == 0) {
+          U(i, j * r + k) = R::rnorm(0.0, 1.0);
+        } else {
+          U(i, j * r + k) = uij(Y(i, j * r + k) - 1);
+        }
       }
     }
   }
 
   for (int t = 0; t < samples; ++t) {
 
-    if ((t + 1) % 100 == 0) {
+    if ((t + 1) % 10 == 0) {
       Rcpp::Rcout << "Sample: " << t + 1 << "\n";
       Rcpp::checkUserInterrupt();
     }
@@ -139,20 +143,25 @@ List mnpirt(List data) {
           double low, upp;
           double mjk, vjk;
 
-          if (Y(i, j * r + k) == 1) {
+          // might remove the zero-check --- not sure if it'll be used
+
+          if (Y(i, j*r + k) == 0) {
             low = 0.0;
-            upp = min(abs(uij(find(yij > yij(k)))));
-          } else if (Y(i, j * r + k) == max(yij)) {
-            low = max(abs(uij(find(yij < yij(k)))));
+            upp = 1.0e+5;
+          } else if (Y(i, j*r + k) == 1) {
+            low = 0.0;
+            upp = min(abs(uij(find(yij > yij(k) && yij > 0))));
+          } else if (Y(i, j*r + k) == max(yij)) {
+            low = max(abs(uij(find(yij < yij(k) && yij > 0))));
             upp = 1.0e+5;
           } else {
-            low = max(abs(uij(find(yij < yij(k)))));
-            upp = min(abs(uij(find(yij > yij(k)))));
+            low = max(abs(uij(find(yij < yij(k) && yij > 0))));
+            upp = min(abs(uij(find(yij > yij(k) && yij > 0))));
           }
 
-          cdist(mi, Su, ui, j * r + k, mjk, vjk);
+          cdist(mi, Su, ui, j*r + k, mjk, vjk);
           ui(j * r + k) = truncmix(mjk, sqrt(vjk), -upp, -low, low, upp);
-          uij(k) = ui(j * r + k);
+          uij(k) = ui(j*r + k);
         }
       }
       U.row(i) = ui.t();
@@ -168,9 +177,9 @@ List mnpirt(List data) {
       XRX = XRX + Xi.t() * Ru * Xi;
       XRu = XRu + Xi.t() * Ru * ui;
     }
-    Bb = inv(XRX + Rb);
+    Bb = inv_sympd(XRX + Rb);
     beta = mvrnorm(Bb * XRu, Bb, false);
-    
+
     for (int i = 0; i < n; ++i) {
       mi = X.rows(i * c, i * c + c - 1) * beta;
       M.row(i) = mi.t();
@@ -181,26 +190,23 @@ List mnpirt(List data) {
     for (int i = 0; i < n; ++i) {
       Zi = Z.rows(i * c, i * c + c - 1);
       ui = vectorise(U.row(i)) - X.rows(i * c, i * c + c - 1) * beta;
-      Bz = inv(Zi.t() * Zi + Rz);
+      Bz = inv_sympd(Zi.t() * Zi + Rz);
       zeta.row(i) = mvrnorm(Bz * Zi.t() * ui, Bz, false).t();
     }
 
     // Sample phi matrix.
 
-    // Delay sampling from conditional posterior of covariance matrix to improve initial mixing.    
+    // Delay sampling from conditional posterior of covariance matrix to improve initial mixing.
     if (t > 499) {
-      Rz = rwishart(n + vz, inv(Vz + zeta.t() * zeta));
+      Rz = rwishart(n + vz, inv_sympd(Vz + zeta.t() * zeta));
       Sz = inv(Rz);
     }
-    
+
     Zi = Z.rows(0, c - 1); // assuming same covariance structure for all i
     Su = Zi * Sz * Zi.t() + arma::eye(c,c);
-    Ru = inv(Su);
+    Ru = inv_sympd(Su);
 
-    // Store sample.
-    
-    alph = pow(det(Su), 1.0 / c);
-    alph = 1.0;
+    // Store sample. Here alpha is a standardization constant (not used).
 
     betasave.row(t) = beta.t() / sqrt(alph);
     sigmsave.row(t) = lowertri(Su, true).t() / alph;
@@ -228,7 +234,7 @@ List mnprnk(List data) {
   int m = Y.n_cols;
   int p = X.n_cols;
 
-  arma::mat W = inv(S);
+  arma::mat W = inv_sympd(S);
   arma::mat M(n, m);
 
   arma::mat XWX(p, p);
@@ -245,8 +251,8 @@ List mnprnk(List data) {
 
   // Prior parameter specification.
   arma::mat Rb = arma::eye(p,p);
-  arma::mat V = arma::eye(m,m) * 10;
-  int v = 10;
+  arma::mat V = arma::eye(m,m);
+  int v = m + 1;
   double phi = 1.0;
 
   double alph = 1.0;
@@ -309,7 +315,7 @@ List mnprnk(List data) {
       XWX = XWX + Xi.t() * W * Xi;
       XWu = XWu + Xi.t() * W * ui;
     }
-    B = inv(XWX + Rb);
+    B = inv_sympd(XWX + Rb);
     beta = mvrnorm(B * XWu, B, false);
 
     for (int i = 0; i < n; ++i) {
@@ -317,25 +323,14 @@ List mnprnk(List data) {
       M.row(i) = mi.t();
     }
 
-    if (k > 99) {
+    // Wait after a short burn-in to sample covariance matrix. This tends to improve convergence.
+    if (k > 499) {
       Z = U - M;
-      W = rwishart(n + v, inv(V + Z.t() * Z));
-      S = inv(W);
+      W = rwishart(n + v, inv_sympd(V + Z.t() * Z));
+      S = inv_sympd(W);
     }
     alph = pow(det(S), 1.0 / m);
 
-    /*
-    for (int i = 0; i < n; ++i) {
-      ui = vectorise(U.row(i));
-      mi = vectorise(M.row(i));
-      zeta(i) = meanpost(ui - mi, 1.0, 0.0, phi);
-    }
-
-    phi = sigmpost(zeta, 0.0, 10 / 2.0, 10 / 2.0); // Note: Prior specification here.
-    S = arma::ones(m,m) * phi + arma::eye(m,m);
-    W = inv(S);
-    */
-     
     betasave.row(k) = beta.t() / sqrt(alph);
     sigmsave.row(k) = lowertri(S, true).t() / alph;
 

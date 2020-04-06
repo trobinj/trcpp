@@ -9,4 +9,4 @@ Description: Package of miscellaneous functions written in C++ and interfaced wi
 License: GPL-3
 Imports: Rcpp (>= 0.12.14)
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.0

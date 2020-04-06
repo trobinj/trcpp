@@ -1,4 +1,4 @@
-// Functions for evaluating various log-likelihood functions.
+/* Functions for evaluating various log-likelihood functions given a vector of independent realizations. */
 
 #include <RcppArmadillo.h>
 

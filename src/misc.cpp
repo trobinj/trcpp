@@ -90,6 +90,7 @@ arma::vec repeat(arma::vec x, arma::vec n) {
   return y;
 }
 
+/* Extract the lower triangle of a matrix (with or without the main diagonal) into a vector. */
 arma::vec lowertri(arma::mat x, bool diag) {
   if (!diag) x.shed_row(0);
   int n = x.n_rows;
@@ -109,6 +110,7 @@ arma::vec lowertri(arma::mat x, bool diag) {
   return y;
 }
 
+/* Convert a vector representing the elements of the lower triangle of a matrix into a symmetric matrix. */
 arma::mat vec2symm(arma::vec x) {
   int n = (sqrt(8 * x.n_elem + 1) - 1) / 2;
   int t = 0;
@@ -153,10 +155,10 @@ arma::umat indexmat(arma::vec x) {
   return y;
 }
 
-// Compute nodes and weights for the Gauss-Hermite quadrature approximation
-// \int_{-\infty}^{\infty} e^{-x^2} f(x) dx \approx \sum_{i=1}^n w_i f(x_i)
-// using the Golub-Welsch algorithm.
+/* Compute nodes and weights for the Gauss-Hermite quadrature approximation \int_{-\infty}^{\infty} e^{-x^2} f(x) dx \approx \sum_{i=1}^n w_i f(x_i) using the Golub-Welsch algorithm. */
+
 void ghquad(int n, arma::vec & node, arma::vec & wght) {
+  constexpr double b0 = sqrt(M_PI);
   arma::mat J(n, n, arma::fill::zeros);
   for (int i = 0; i < n - 1; ++i) {
     J(i + 1, i) = sqrt((i + 1) / 2.0);
@@ -165,7 +167,6 @@ void ghquad(int n, arma::vec & node, arma::vec & wght) {
   arma::vec eigenval(n);
   arma::mat eigenvec(n, n);
   arma::eig_sym(eigenval, eigenvec, J);
-  constexpr double b0 = sqrt(M_PI);
   for (int i = 0; i < n; ++i) {
     node(i) = eigenval(i);
     wght(i) = b0 * pow(eigenvec(0, i), 2) / pow(arma::norm(eigenvec.col(i)), 2);
