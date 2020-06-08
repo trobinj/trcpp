@@ -27,11 +27,6 @@ lmerperm <- function(x, z, y, clust, block, samples, betaprior, phivprior, psivp
 }
 
 #' @export
-mnpirt <- function(data) {
-    .Call('_trcpp_mnpirt', PACKAGE = 'trcpp', data)
-}
-
-#' @export
 mnprnk <- function(data) {
     .Call('_trcpp_mnprnk', PACKAGE = 'trcpp', data)
 }
@@ -42,8 +37,8 @@ mprobit <- function(data) {
 }
 
 #' @export
-pmvnorm <- function(s, a, b, epsi, alph, nmax) {
-    .Call('_trcpp_pmvnorm', PACKAGE = 'trcpp', s, a, b, epsi, alph, nmax)
+pmvnorm <- function(a, b, mu, sigma, epsilon, alpha, nmin, nmax) {
+    .Call('_trcpp_pmvnorm', PACKAGE = 'trcpp', a, b, mu, sigma, epsilon, alpha, nmin, nmax)
 }
 
 #' @export

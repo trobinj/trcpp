@@ -8,7 +8,6 @@ arma::vec multscor(arma::mat prb, arma::vec t, arma::vec s) {
   int n = prb.n_rows;
   int m = prb.n_cols;
   arma::vec y(m, arma::fill::zeros);
-  arma::vec temp(m);
   for (int j = 0; j < m; ++j) {
     for (int i = 0; i < n; ++i) {
       y(j) = y(j) + prb(i,j) * exp(t(j)) / as_scalar(prb.row(i) * exp(t));

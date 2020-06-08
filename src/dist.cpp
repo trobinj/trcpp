@@ -194,7 +194,7 @@ double mvgamma(int p, double a, bool logd) {
   return logd ? y : exp(y);
 }
 
-// Probability density function of Wishart distribution.
+// Probability density function of a Wishart distribution with scale matrix v and degrees of freedom n.
 double dwishart(arma::mat x, double n, arma::mat v, bool logd) {
   constexpr double log2 = log(2.0);
   int p = x.n_rows;

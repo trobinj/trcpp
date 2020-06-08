@@ -1,7 +1,6 @@
 #include <RcppArmadillo.h>
 #include "dist.h"
 #include "misc.h"
-#include "post.h"
 
 using namespace Rcpp;
 
@@ -11,8 +10,7 @@ namespace mnpspc {
     return R::pnorm(x, 0.0, 1.0, true, false);
   }
 
-  // Sampler for truncated normal distribution with non-zero support
-  // on (a,b) and (c,d) where a < b < c < d.
+  // Sampler for truncated normal distribution with non-zero support on (a,b) and (c,d) where a < b < c < d.
   double truncmix(double m, double s, double a, double b, double c, double d) {
     double pab = pnorm((b - m) / s) - pnorm((a - m) / s);
     double pcd = pnorm((d - m) / s) - pnorm((c - m) / s);
@@ -23,32 +21,229 @@ namespace mnpspc {
     }
   }
 
-  // Compute mean and variance of a univariate conditional disribution given a
-  // multivariate normal distribution.
-  void cdist(arma::vec m, arma::mat s, arma::vec x, int j, double & mj, double & vj) {
+  arma::mat bcoef(arma::mat s) {
+    int m = s.n_cols;
+    arma::mat y(m, m - 1);
 
-    arma::mat m2(m);
-    m2.shed_row(j);
+    for (int j = 0; j < m; ++j) {
 
-    arma::mat x2(x);
-    x2.shed_row(j);
+      arma::mat s12 = s.row(j);
+      arma::mat s22 = s;
 
-    arma::mat s22 = s;
-    s22.shed_row(j);
-    s22.shed_col(j);
+      s12.shed_col(j);
+      s22.shed_row(j);
+      s22.shed_col(j);
 
-    arma::mat s12 = s.row(j);
-    s12.shed_col(j);
+      y.row(j) = s12 * inv_sympd(s22);
+    }
+    return y;
+  }
 
-    arma::mat b = s12 * inv_sympd(s22);
+  void cdist(arma::vec m, arma::mat s, arma::mat b, arma::vec x, int j, double & mj, double & vj) {
+      arma::mat m2(m); m2.shed_row(j);
+      arma::mat x2(x); x2.shed_row(j);
+      arma::mat s12 = s.row(j); s12.shed_col(j);
 
-    mj = m(j) + as_scalar(b * (x2 - m2));
-    vj = s(j,j) - as_scalar(b * s12.t());
+      mj = m(j) + as_scalar(b.row(j) * (x2 - m2));
+      vj = s(j,j) - as_scalar(b.row(j) * s12.t());
   }
 }
 
+/* Note: This algorithm uses a method from Burgette and Nordheim 
+(2012, Journal of Business and Economic Statistics) to impose an
+identification constraint on the trace of the covariance matrix. 
+To improve the behavior of the MCMC algorithm, sampling of the
+covariance matrix is delayed until after a short burn-in. */
+
 //' @export
 // [[Rcpp::export]]
+List mnprnk(List data) {
+
+  using namespace mnpspc;
+
+  arma::mat Y = data["Y"];
+  arma::mat X = data["X"];
+  int samples = data["samples"];
+  arma::vec beta = data["beta"];
+  arma::mat S = data["S"];
+  
+  arma::vec mb = data["mb"];
+  arma::mat Rb = data["Rb"];
+
+  int n = Y.n_rows;
+  int m = Y.n_cols;
+  int p = X.n_cols;
+
+  arma::mat W = inv_sympd(S);
+  arma::mat M(n, m);
+  arma::mat C(m, m);
+
+  arma::mat XWX(p, p);
+  arma::vec XWu(p);
+  arma::mat Xi(m, p);
+  arma::vec ui(m);
+  arma::vec mi(m);
+  arma::vec yi(m);
+  arma::mat B(p, p);
+  arma::vec b(p);
+  arma::mat Z(n, m);
+  arma::mat U(n, m);
+
+  arma::vec zeta(n);
+  
+  double a2 = 1.0;
+  double a1 = sqrt(a2);
+  double ssa = 0.0;
+  
+  arma::mat V = arma::eye(m,m); // prior scale matrix
+  int v = m + 1;                // prior degrees of freedom
+
+  for (int i = 0; i < n; ++i) {
+    mi = X.rows(i * m, i * m + m - 1) * beta;
+    M.row(i) = mi.t();
+  }
+
+  // Initialize latent responses that are consistent with observed rankings.
+  for (int i = 0; i < n; ++i) {
+    ui.randn();
+    ui = ui(sort_index(abs(ui)));
+    for (int j = 0; j < m; ++j) {
+      if (Y(i,j) == 0) {
+        U(i,j) = R::rnorm(0.0, 1.0);
+      }
+      else {
+        U(i,j) = ui(Y(i,j) - 1);
+     }
+    }
+  }
+
+  // Arrays to store stimulated realizations from the posterior distribution.
+  arma::mat betasave(samples, p);
+  arma::mat sigmsave(samples, m * (m + 1) / 2);
+  arma::mat deltsave(samples, m);
+
+  for (int k = 0; k < samples; ++k) {
+
+    if ((k + 1) % 100 == 0) {
+      Rcpp::Rcout << "Sample: " << k + 1 << "\n";
+      Rcpp::checkUserInterrupt();
+    }
+
+    arma::mat Bk(m, m - 1);
+    Bk = bcoef(S);
+
+    for (int i = 0; i < n; ++i) {
+      ui = vectorise(U.row(i));
+      yi = vectorise(Y.row(i));
+      mi = vectorise(M.row(i));
+      for (int j = 0; j < m; ++j) {
+        double lw, up;
+        double mj, vj;
+        if (Y(i,j) == 0) {
+          lw = 0.0;
+          up = 1.0e+5;
+        } else if (Y(i,j) == 1) {
+          lw = 0.0;
+          up = min(abs(ui(find(yi > yi(j) && yi > 0))));
+        } else if (Y(i,j) == max(yi)) {
+          lw = max(abs(ui(find(yi < yi(j) && yi > 0))));
+          up = 1.0e+5;
+        } else {
+          lw = max(abs(ui(find(yi < yi(j) && yi > 0))));
+          up = min(abs(ui(find(yi > yi(j) && yi > 0))));
+        }
+        cdist(mi, S, Bk, ui, j, mj, vj);
+        ui(j) = truncmix(mj, sqrt(vj), -up, -lw, lw, up);
+      }
+      U.row(i) = ui.t();
+    }
+    
+    // trace restriction
+    
+    if (k > 999) {
+      a2 = trace(V * W) / R::rchisq(v * m);
+      a1 = sqrt(a2);
+    }
+    U = U * a1;
+    
+    // Sample beta.
+
+    XWX.fill(0.0);
+    XWu.fill(0.0);
+    for (int i = 0; i < n; ++i) {
+      Xi = X.rows(i * m, i * m + m - 1);
+      ui = vectorise(U.row(i));
+      XWX = XWX + Xi.t() * W * Xi;
+      XWu = XWu + Xi.t() * W * ui;
+    }
+    B = inv_sympd(Rb + XWX);
+    b = B * (Rb * mb + XWu);
+  
+    if (k > 999) {
+      ssa = 0.0;
+      for (int i = 0; i < n; ++i) {
+        Xi = X.rows(i * m, i * m + m - 1);
+        ui = vectorise(U.row(i));
+        ssa = ssa + as_scalar((ui - Xi*b).t() * W * (ui - Xi*b));
+      }
+      a2 = (ssa + as_scalar(b.t() * Rb * b) + trace(V * W)) / R::rchisq((n + v) * m);
+      a1 = sqrt(a2);  
+    }
+    
+    beta = mvrnorm(b, a2 * B, false);
+    
+    betasave.row(k) = beta.t();
+
+    for (int i = 0; i < n; ++i) {
+      mi = X.rows(i * m, i * m + m - 1) * beta;
+      M.row(i) = mi.t();
+    }
+
+    if (k > 999) {
+      Z = U - M;
+      W = rwishart(n + v, inv_sympd(V + Z.t() * Z));
+      S = inv_sympd(W);
+    }
+    
+    if (k > 999) {
+      a2 = trace(inv_sympd(W)) / m;
+      a1 = sqrt(a2);
+    }
+    
+    S = inv_sympd(W) / a2;
+    W = inv_sympd(S);
+    
+    U = U / a1;
+    M = M / a1;
+    
+    beta = beta / a1;
+
+    // Compute sampled correlations instead of covariances.
+    for (int i = 0; i < m; ++i) {
+      for (int j = 0; j < m; ++j) {
+        if (i == j) {
+          C(i,j) = S(i,j);  
+        } else {
+          C(i,j) = S(i,j) / sqrt(S(i,i) * S(j,j));  
+        }
+      }
+    }
+
+    sigmsave.row(k) = lowertri(C, true).t();
+    deltsave.row(k) = mvrnorm(beta.head(m), S, false).t();
+
+    // Rcpp::Rcout << "beta:\n" << beta / sqrt(alph) << "\n";
+    // Rcpp::Rcout << "sigm:\n" << S / alph << "\n";
+  }
+
+  return List::create(
+    Named("sigm") = wrap(sigmsave),
+    Named("beta") = wrap(betasave),
+    Named("delt") = wrap(deltsave)
+  );
+}
+
+/*
 List mnpirt(List data) {
 
   using namespace mnpspc;
@@ -217,133 +412,7 @@ List mnpirt(List data) {
     Named("sigm") = wrap(sigmsave)
   );
 }
-
-//' @export
-// [[Rcpp::export]]
-List mnprnk(List data) {
-
-  using namespace mnpspc;
-
-  arma::mat Y = data["Y"];
-  arma::mat X = data["X"];
-  int samples = data["samples"];
-  arma::vec beta = data["beta"];
-  arma::mat S = data["S"];
-
-  int n = Y.n_rows;
-  int m = Y.n_cols;
-  int p = X.n_cols;
-
-  arma::mat W = inv_sympd(S);
-  arma::mat M(n, m);
-
-  arma::mat XWX(p, p);
-  arma::vec XWu(p);
-  arma::mat Xi(m, p);
-  arma::vec ui(m);
-  arma::vec mi(m);
-  arma::vec yi(m);
-  arma::mat B(p, p);
-  arma::mat Z(n, m);
-  arma::mat U(n, m);
-
-  arma::vec zeta(n);
-
-  // Prior parameter specification.
-  arma::mat Rb = arma::eye(p,p);
-  arma::mat V = arma::eye(m,m);
-  int v = m + 1;
-  double phi = 1.0;
-
-  double alph = 1.0;
-
-  for (int i = 0; i < n; ++i) {
-    mi = X.rows(i * m, i * m + m - 1) * beta;
-    M.row(i) = mi.t();
-  }
-
-  // Initialize latent responses that are consistent with observed rankings.
-  for (int i = 0; i < n; ++i) {
-    ui.randn();
-    ui = ui(sort_index(abs(ui)));
-    for (int j = 0; j < m; ++j) {
-      U(i,j) = ui(Y(i,j) - 1);
-    }
-  }
-
-  // Arrays to store stimulated realizations from the posterior distribution.
-  arma::mat betasave(samples, p);
-  arma::mat sigmsave(samples, m * (m + 1) / 2);
-
-  for (int k = 0; k < samples; ++k) {
-
-    if ((k + 1) % 100 == 0) {
-      Rcpp::Rcout << "Sample: " << k + 1 << "\n";
-      Rcpp::checkUserInterrupt();
-    }
-
-    for (int i = 0; i < n; ++i) {
-      ui = vectorise(U.row(i));
-      yi = vectorise(Y.row(i));
-      mi = vectorise(M.row(i));
-      for (int j = 0; j < m; ++j) {
-        double lw, up;
-        double mj, vj;
-        if (Y(i,j) == 1) {
-          lw = 0.0;
-          up = min(abs(ui(find(yi > yi(j)))));
-        } else if (Y(i,j) == max(yi)) {
-          lw = max(abs(ui(find(yi < yi(j)))));
-          up = 1.0e+5;
-        } else {
-          lw = max(abs(ui(find(yi < yi(j)))));
-          up = min(abs(ui(find(yi > yi(j)))));
-        }
-        cdist(mi, S, ui, j, mj, vj);
-        ui(j) = truncmix(mj, sqrt(vj), -up, -lw, lw, up);
-      }
-      U.row(i) = ui.t();
-    }
-
-    // Sample beta.
-
-    XWX.fill(0.0);
-    XWu.fill(0.0);
-    for (int i = 0; i < n; ++i) {
-      Xi = X.rows(i * m, i * m + m - 1);
-      ui = vectorise(U.row(i));
-      XWX = XWX + Xi.t() * W * Xi;
-      XWu = XWu + Xi.t() * W * ui;
-    }
-    B = inv_sympd(XWX + Rb);
-    beta = mvrnorm(B * XWu, B, false);
-
-    for (int i = 0; i < n; ++i) {
-      mi = X.rows(i * m, i * m + m - 1) * beta;
-      M.row(i) = mi.t();
-    }
-
-    // Wait after a short burn-in to sample covariance matrix. This tends to improve convergence.
-    if (k > 499) {
-      Z = U - M;
-      W = rwishart(n + v, inv_sympd(V + Z.t() * Z));
-      S = inv_sympd(W);
-    }
-    alph = pow(det(S), 1.0 / m);
-
-    betasave.row(k) = beta.t() / sqrt(alph);
-    sigmsave.row(k) = lowertri(S, true).t() / alph;
-
-    // Rcpp::Rcout << "beta:\n" << beta / sqrt(alph) << "\n";
-    // Rcpp::Rcout << "sigm:\n" << S / alph << "\n";
-  }
-
-  return List::create(
-    Named("sigm") = wrap(sigmsave),
-    Named("beta") = wrap(betasave)
-  );
-}
-
+*/
 
 /*
 List mnprnk(List data) {
