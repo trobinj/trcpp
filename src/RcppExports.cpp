@@ -109,24 +109,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// pmvnorm
-double pmvnorm(arma::vec a, arma::vec b, arma::vec mu, arma::mat sigma, double epsilon, double alpha, int nmin, int nmax);
-RcppExport SEXP _trcpp_pmvnorm(SEXP aSEXP, SEXP bSEXP, SEXP muSEXP, SEXP sigmaSEXP, SEXP epsilonSEXP, SEXP alphaSEXP, SEXP nminSEXP, SEXP nmaxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type a(aSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type b(bSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
-    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< int >::type nmin(nminSEXP);
-    Rcpp::traits::input_parameter< int >::type nmax(nmaxSEXP);
-    rcpp_result_gen = Rcpp::wrap(pmvnorm(a, b, mu, sigma, epsilon, alpha, nmin, nmax));
-    return rcpp_result_gen;
-END_RCPP
-}
 // raschic
 List raschic(arma::mat Y, arma::mat X, arma::mat Z, arma::vec d, int samples, int maxy);
 RcppExport SEXP _trcpp_raschic(SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP dSEXP, SEXP samplesSEXP, SEXP maxySEXP) {
@@ -152,7 +134,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},
     {"_trcpp_mnprnk", (DL_FUNC) &_trcpp_mnprnk, 1},
     {"_trcpp_mprobit", (DL_FUNC) &_trcpp_mprobit, 1},
-    {"_trcpp_pmvnorm", (DL_FUNC) &_trcpp_pmvnorm, 8},
     {"_trcpp_raschic", (DL_FUNC) &_trcpp_raschic, 6},
     {NULL, NULL, 0}
 };

@@ -158,8 +158,6 @@ List mnprnk(List data) {
       U.row(i) = ui.t();
     }
     
-    // trace restriction
-    
     if (k > 999) {
       a2 = trace(V * W) / R::rchisq(v * m);
       a1 = sqrt(a2);
@@ -203,9 +201,7 @@ List mnprnk(List data) {
       Z = U - M;
       W = rwishart(n + v, inv_sympd(V + Z.t() * Z));
       S = inv_sympd(W);
-    }
-    
-    if (k > 999) {
+
       a2 = trace(inv_sympd(W)) / m;
       a1 = sqrt(a2);
     }
@@ -230,7 +226,7 @@ List mnprnk(List data) {
     }
 
     sigmsave.row(k) = lowertri(C, true).t();
-    deltsave.row(k) = mvrnorm(beta.head(m), S, false).t();
+    deltsave.row(k) = mvrnorm(beta.head(m), S, false).t(); // posterior predictive distribution for "moderate"
 
     // Rcpp::Rcout << "beta:\n" << beta / sqrt(alph) << "\n";
     // Rcpp::Rcout << "sigm:\n" << S / alph << "\n";

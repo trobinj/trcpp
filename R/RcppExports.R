@@ -37,11 +37,6 @@ mprobit <- function(data) {
 }
 
 #' @export
-pmvnorm <- function(a, b, mu, sigma, epsilon, alpha, nmin, nmax) {
-    .Call('_trcpp_pmvnorm', PACKAGE = 'trcpp', a, b, mu, sigma, epsilon, alpha, nmin, nmax)
-}
-
-#' @export
 raschic <- function(Y, X, Z, d, samples, maxy) {
     .Call('_trcpp_raschic', PACKAGE = 'trcpp', Y, X, Z, d, samples, maxy)
 }
