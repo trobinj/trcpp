@@ -28,6 +28,8 @@ double dmvt(arma::vec y, arma::vec m, arma::mat s, double v, bool logd);
 double dwishart(arma::mat x, double n, arma::mat v, bool logd);
 arma::mat rwishart(int df, arma::mat S);
 
+double ghk(arma::vec m, arma::mat S, arma::vec low, arma::vec upp, int n);
+
 // double pmvnorm(arma::vec a, arma::vec b, arma::vec mu, arma::mat sigma, double epsilon, double alpha, int nmin, int nmax)
 
 #endif

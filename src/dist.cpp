@@ -220,10 +220,47 @@ arma::mat rwishart(int df, arma::mat S) {
   return y;
 }
 
-/* The pmvnorm function uses a Monte Carlo algorithm due to Genz (1992, Journal of 
- * Computational and Graphical Statistics). I added a parameter nmin for the 
+// Geweke-Hajivassiliou-Keane (GHK) importance sampling algorithm.
+namespace ghkspc {
+    double pnorm(double z) {
+        return R::pnorm(z, 0.0, 1.0, true, false);
+    }
+}
+double ghk(arma::vec m, arma::mat s, arma::vec low, arma::vec upp, int n) {
+    using namespace ghkspc;
+
+    d = m.n_elem;
+    arma::vec lw = low - m;
+    arma::vec up = upp - m;
+    arma::vec q(d, arma::fill::zeros);
+    arma::vec u(d - 1, arma::fill::zeros);
+    arma::mat C = arma::chol(sigma, "lower");
+    double v, l, u, prb = 0.0;
+
+    for (int i = 0; i < n; ++i) {
+
+        q(0) = pnorm(up(0) / C(0,0)) - pnorm(lw(0) / C(0,0));
+        u(0) = rnormint(0.0, 1.0, lw(0) / C(0,0), up(0) / C(0,0));
+
+        for (int j = 1; j < d; ++j) {
+            v = as_scalar(C(j,arma::span(0,j-1)) * u.head(j-1));
+            l = (lw(j) - v) / C(j,j);
+            u = (up(j) - v) / C(j,j);
+            q(j) = pnorm(u) - pnorm(l);
+            if (j < d - 1) {
+                u(j) = rnormint(0.0, 1.0, l, u);
+            }
+        }
+        prb = prb + prod(q);
+    }
+
+    return prb / n;
+}
+
+/* The pmvnorm function uses a Monte Carlo algorithm due to Genz (1992, Journal of
+ * Computational and Graphical Statistics). I added a parameter nmin for the
  * minimum number of iterations before checking the estimated Monte Carlo error.
- */ 
+ */
 
 // namespace pmvnormspc {
 // double pnorm(double z) {
@@ -233,28 +270,28 @@ arma::mat rwishart(int df, arma::mat S) {
 //   return R::qnorm(p, 0.0, 1.0, true, false);
 // }
 // }
-// 
+//
 // double pmvnorm(arma::vec a, arma::vec b, arma::vec mu, arma::mat sigma, double epsilon, double alpha, int nmin, int nmax) {
-//   
+//
 //   using namespace pmvnormspc;
-//   
+//
 //   arma::mat c = chol(sigma, "lower");
 //   a = a - mu;
 //   b = b - mu;
-//   
+//
 //   double intsum = 0.0;
 //   double varsum = 0.0;
 //   double interr = 0.0;
 //   double cy;
 //   int m = a.n_elem;
 //   int N;
-//   
+//
 //   arma::vec y(m - 1);
 //   arma::vec w(m - 1);
 //   arma::vec d(m); d(0) = pnorm(a(0) / c(0,0));
 //   arma::vec e(m); e(0) = pnorm(b(0) / c(0,0));
 //   arma::vec f(m); f(0) = e(0) - d(0);
-//   
+//
 //   for (int k = 0; k < nmax; ++k) {
 //     w.randu();
 //     for (int i = 1; i < m; ++i) {
@@ -270,7 +307,7 @@ arma::mat rwishart(int df, arma::mat S) {
 //     N = k + 1;
 //     intsum = intsum + f(m - 1);
 //     varsum = varsum + pow(f(m - 1), 2);
-//     
+//
 //     if (N > nmin) {
 //       interr = alpha * sqrt((varsum / N - pow(intsum / N, 2)) / N);
 //       if (interr < epsilon) {
@@ -278,7 +315,6 @@ arma::mat rwishart(int df, arma::mat S) {
 //       }
 //     }
 //   }
-//   
+//
 //   return intsum / N;
 // }
-
