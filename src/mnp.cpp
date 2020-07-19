@@ -2,6 +2,8 @@
 #include "dist.h"
 #include "misc.h"
 
+// #define ARMA_NO_DEBUG
+
 using namespace Rcpp;
 
 namespace mnpspc {
@@ -49,9 +51,9 @@ namespace mnpspc {
   }
 }
 
-/* Note: This algorithm uses a method from Burgette and Nordheim 
+/* Note: This algorithm uses a method from Burgette and Nordheim
 (2012, Journal of Business and Economic Statistics) to impose an
-identification constraint on the trace of the covariance matrix. 
+identification constraint on the trace of the covariance matrix.
 To improve the behavior of the MCMC algorithm, sampling of the
 covariance matrix is delayed until after a short burn-in. */
 
@@ -66,7 +68,7 @@ List mnprnk(List data) {
   int samples = data["samples"];
   arma::vec beta = data["beta"];
   arma::mat S = data["S"];
-  
+
   arma::vec mb = data["mb"];
   arma::mat Rb = data["Rb"];
 
@@ -90,11 +92,11 @@ List mnprnk(List data) {
   arma::mat U(n, m);
 
   arma::vec zeta(n);
-  
+
   double a2 = 1.0;
   double a1 = sqrt(a2);
   double ssa = 0.0;
-  
+
   arma::mat V = arma::eye(m,m); // prior scale matrix
   int v = m + 1;                // prior degrees of freedom
 
@@ -157,13 +159,13 @@ List mnprnk(List data) {
       }
       U.row(i) = ui.t();
     }
-    
+
     if (k > 999) {
       a2 = trace(V * W) / R::rchisq(v * m);
       a1 = sqrt(a2);
     }
     U = U * a1;
-    
+
     // Sample beta.
 
     XWX.fill(0.0);
@@ -176,7 +178,7 @@ List mnprnk(List data) {
     }
     B = inv_sympd(Rb + XWX);
     b = B * (Rb * mb + XWu);
-  
+
     if (k > 999) {
       ssa = 0.0;
       for (int i = 0; i < n; ++i) {
@@ -185,11 +187,11 @@ List mnprnk(List data) {
         ssa = ssa + as_scalar((ui - Xi*b).t() * W * (ui - Xi*b));
       }
       a2 = (ssa + as_scalar(b.t() * Rb * b) + trace(V * W)) / R::rchisq((n + v) * m);
-      a1 = sqrt(a2);  
+      a1 = sqrt(a2);
     }
-    
+
     beta = mvrnorm(b, a2 * B, false);
-    
+
     betasave.row(k) = beta.t();
 
     for (int i = 0; i < n; ++i) {
@@ -205,22 +207,22 @@ List mnprnk(List data) {
       a2 = trace(inv_sympd(W)) / m;
       a1 = sqrt(a2);
     }
-    
+
     S = inv_sympd(W) / a2;
     W = inv_sympd(S);
-    
+
     U = U / a1;
     M = M / a1;
-    
+
     beta = beta / a1;
 
     // Compute sampled correlations instead of covariances.
     for (int i = 0; i < m; ++i) {
       for (int j = 0; j < m; ++j) {
         if (i == j) {
-          C(i,j) = S(i,j);  
+          C(i,j) = S(i,j);
         } else {
-          C(i,j) = S(i,j) / sqrt(S(i,i) * S(j,j));  
+          C(i,j) = S(i,j) / sqrt(S(i,i) * S(j,j));
         }
       }
     }

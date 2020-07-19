@@ -27,15 +27,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // foo
-void foo(arma::vec x, double a, double b);
-RcppExport SEXP _trcpp_foo(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
+double foo(arma::vec m, arma::mat s, arma::vec low, arma::vec upp, int n);
+RcppExport SEXP _trcpp_foo(SEXP mSEXP, SEXP sSEXP, SEXP lowSEXP, SEXP uppSEXP, SEXP nSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
-    Rcpp::traits::input_parameter< double >::type a(aSEXP);
-    Rcpp::traits::input_parameter< double >::type b(bSEXP);
-    foo(x, a, b);
-    return R_NilValue;
+    Rcpp::traits::input_parameter< arma::vec >::type m(mSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type s(sSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type low(lowSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type upp(uppSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(foo(m, s, low, upp, n));
+    return rcpp_result_gen;
 END_RCPP
 }
 // mcmc1pl
@@ -128,7 +131,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_trcpp_bernlong", (DL_FUNC) &_trcpp_bernlong, 10},
-    {"_trcpp_foo", (DL_FUNC) &_trcpp_foo, 3},
+    {"_trcpp_foo", (DL_FUNC) &_trcpp_foo, 5},
     {"_trcpp_mcmc1pl", (DL_FUNC) &_trcpp_mcmc1pl, 1},
     {"_trcpp_lmerlong", (DL_FUNC) &_trcpp_lmerlong, 9},
     {"_trcpp_lmerperm", (DL_FUNC) &_trcpp_lmerperm, 9},

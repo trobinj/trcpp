@@ -1,11 +1,12 @@
 // Functions for testing purposes only.
 
 #include <RcppArmadillo.h>
+#include "dist.h"
 
 using namespace Rcpp;
 
 //' @export
 // [[Rcpp::export]]
-void foo(arma::vec x, double a, double b) {
-  Rcpp::Rcout << x(find(x > a && x < b));
+double foo(arma::vec m, arma::mat s, arma::vec low, arma::vec upp, int n) {
+  return ghk(m, s, low, upp, n);
 }
