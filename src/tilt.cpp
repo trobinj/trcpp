@@ -18,7 +18,7 @@ arma::vec multscor(arma::mat prb, arma::vec t, arma::vec s) {
 
 arma::mat multjcbn(arma::mat prb, arma::vec t, arma::vec s) {
   int m = prb.n_cols;
-  int delta = 1e-8;
+  double delta = 1e-8;
   arma::mat J(m, m);
   arma::vec d(m, arma::fill::zeros);
   for (int j = 0; j < m; ++j) {
