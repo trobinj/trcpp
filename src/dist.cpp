@@ -3,7 +3,7 @@
 #include <RcppArmadillo.h>
 #include "misc.h"
 
-// #define ARMA_NO_DEBUG
+// #define ARMA_NO_DEBUG // disable run-time checks for speed
 
 // Sampler for sampling from the tail of a truncated normal distribution
 // using either Marsaglia's (1964, Technometrics) rejection sampler or a
@@ -16,7 +16,7 @@ double rnormtail(double a, double m, double s, bool pos) {
       u = R::runif(0.0, 1.0);
       v = R::runif(0.0, 1.0);
       z = sqrt(pow(l,2) - 2.0 * log(u));
-    } while(v < l / z);
+    } while (v < l / z);
   } else {
     do {
       z = R::rnorm(0.0, 1.0);
@@ -35,7 +35,7 @@ double rnormpos(double m, double s, bool pos) {
     z = R::rexp(1.0) / a + l;
     u = R::runif(0.0, 1.0);
     p = exp(-pow(z - a, 2) / 2.0);
-  } while(u > p);
+  } while (u > p);
   return pos ? z * s + m : -z * s + m;
 }
 
@@ -223,7 +223,7 @@ arma::mat rwishart(int df, arma::mat S) {
 }
 
 // Geweke-Hajivassiliou-Keane (GHK) importance sampling algorithm. Use the
-// namespace below to specify functions for the distribution function for a
+// namespace below to specify functions for the distribution function for the
 // standard normal distribution and a sampler for a truncated normal distribution.
 namespace ghkspc {
   double pnorm(double z) {

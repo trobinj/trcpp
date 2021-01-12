@@ -2,7 +2,7 @@
 #include "dist.h"
 #include "misc.h"
 
-// #define ARMA_NO_DEBUG
+#define ARMA_NO_DEBUG
 
 using namespace Rcpp;
 
