@@ -106,6 +106,7 @@ List mnprnk(List data) {
   }
 
   // Initialize latent responses that are consistent with observed rankings.
+  
   for (int i = 0; i < n; ++i) {
     ui.randn();
     ui = ui(sort_index(abs(ui)));
@@ -120,6 +121,7 @@ List mnprnk(List data) {
   }
 
   // Arrays to store stimulated realizations from the posterior distribution.
+  
   arma::mat betasave(samples, p);
   arma::mat sigmsave(samples, m * (m + 1) / 2);
   arma::mat deltsave(samples, m);
@@ -216,7 +218,8 @@ List mnprnk(List data) {
 
     beta = beta / a1;
 
-    // Compute sampled correlations instead of covariances.
+    // Convert covariances (but not variances) to correlations.
+    
     for (int i = 0; i < m; ++i) {
       for (int j = 0; j < m; ++j) {
         if (i == j) {
